@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.conutik.coflCore"
-version = "0.1.0"
+version = "0.1.01"
 
 repositories {
     // Use Maven Central for resolving dependencies.

@@ -106,7 +106,7 @@ public class SessionManager {
         Path path = GetUserPath(username);
         File file = path.toFile();
 
-        if(!file.exists()) {
+        if(!file.exists() || file.length() == 0) {
             CoflSession session = new CoflSession(UUID.randomUUID().toString(), ZonedDateTime.now());
             OverwriteCoflSession(username, session);
             return session;
