@@ -2,6 +2,7 @@ package CoflCore.misc;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -114,9 +115,16 @@ public class SessionManager {
 
         BufferedReader reader = new BufferedReader( new InputStreamReader(new FileInputStream(file)));
         String raw = reader.lines().collect(Collectors.joining("\n"));
-
         reader.close();
-        CoflSession session = gson.fromJson(raw, CoflSession.class);
+
+        CoflSession session;
+        try {
+            session = gson.fromJson(raw, CoflSession.class);
+        } catch (JsonSyntaxException e) {
+            session = new CoflSession(UUID.randomUUID().toString(), ZonedDateTime.now());
+            OverwriteCoflSession(username, session);
+        }
+
         return session;
     }
 
