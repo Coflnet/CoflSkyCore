@@ -16,7 +16,7 @@ public class Flip {
         return Worth;
     }
 
-    public CoflCore.classes.Sound getSound() {
+    public Sound getSound() {
         return Sound;
     }
 

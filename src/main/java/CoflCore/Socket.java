@@ -24,6 +24,7 @@ public class Socket extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         JsonStringCommand body = gson.fromJson(message, JsonStringCommand.class);
+        EventBus.getDefault().post(new ReceiveCommand(body));
         switch (body.getType()) {
             case Flip -> {
                 EventBus.getDefault().post(new OnFlipReceive(body.GetAs(new TypeToken<Flip>() {
