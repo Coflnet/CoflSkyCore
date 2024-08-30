@@ -1,41 +1,73 @@
 package CoflCore;
 
-import CoflCore.misc.SessionManager;
-import org.greenrobot.eventbus.EventBus;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import CoflCore.configuration.Config;
+import CoflCore.configuration.LocalConfig;
+import CoflCore.network.WSClientWrapper;
+import CoflCore.proxy.APIKeyManager;
+import com.google.gson.Gson;
 public class CoflCore {
-    public static void setSocket(Socket socket) {
-        CoflCore.socket = socket;
+    public static final String MODID = "CoflSky";
+    public static final String VERSION = "1.5.4-Alpha";
+
+    public static WSClientWrapper Wrapper;
+
+    public static File configFile;
+    private File coflDir;
+    public static LocalConfig config;
+
+    public static final String[] webSocketURIPrefix = new String[]{
+            "wss://sky.coflnet.com/modsocket",
+            // fallback for old java versions not supporting new tls certificates
+            "ws://sky-mod.coflnet.com/modsocket",
+    };
+
+    public static String CommandUri = Config.BaseUrl + "/api/mod/commands";
+    private final static APIKeyManager apiKeyManager = new APIKeyManager();
+
+    public void init(Path configPath) {
+        String configString = null;
+        Gson gson = new Gson();
+        coflDir = new File(configPath.toFile(), "CoflSky");
+        coflDir.mkdirs();
+        configFile = new File(coflDir, "config.json");
+        try {
+            if (configFile.isFile()) {
+                configString = new String(Files.readAllBytes(Paths.get(configFile.getPath())));
+                config = gson.fromJson(configString, LocalConfig.class);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (config == null) {
+            config = LocalConfig.createDefaultConfig();
+        }
+
+        try {
+            this.apiKeyManager.loadIfExists(configPath);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+
+        CoflCore.Wrapper = new WSClientWrapper(webSocketURIPrefix);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            config.saveConfig(configFile, config);
+            try {
+                apiKeyManager.saveKey(configPath);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }));
+    }
+    public static APIKeyManager getAPIKeyManager() {
+        return apiKeyManager;
     }
 
-    private static Socket socket;
-
-    public void setupSocket(String username, Path pathToConfig) throws IOException, URISyntaxException {
-
-        SessionManager.setMainPath(pathToConfig);
-        String uri = "wss://sky.coflnet.com/modsocket?player=" + username + "&version=1.5.2-Alpha";
-        SessionManager.UpdateCoflSessions();
-        String coflSessionID = SessionManager.GetCoflSession(username).SessionUUID;
-        uri += "&SId=" + coflSessionID;
-        socket = new Socket(new URI(uri));
-        socket.connect();
-    }
-
-    public void registerEventFile(Object target) {
-        EventBus.getDefault().register(target);
-    }
-
-    public void unregisterEventFile(Object target) {
-        EventBus.getDefault().unregister(target);
-    }
-
-    public void sendCommand(String command) {
-        if(socket == null) throw new NullPointerException("Socket is not setup");
-        socket.send(command);
-    }
 }
+

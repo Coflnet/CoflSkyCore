@@ -1,6 +1,6 @@
 package CoflCore.events;
 
-import CoflCore.classes.JsonStringCommand;
+import CoflCore.commands.JsonStringCommand;
 
 public class ReceiveCommand {
     public final JsonStringCommand command;

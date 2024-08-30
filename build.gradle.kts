@@ -28,6 +28,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     // Event bus
     implementation("org.greenrobot:eventbus-java:3.3.1")
+
+    implementation("com.neovisionaries:nv-websocket-client:2.14")
 }
 
 java {
