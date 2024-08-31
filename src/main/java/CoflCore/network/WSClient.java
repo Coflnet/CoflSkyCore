@@ -104,46 +104,51 @@ public class WSClient extends WebSocketAdapter {
 	 public void onTextMessage(WebSocket websocket, String text) throws Exception{
 		 System.out.println("Received: "+ text);
 		 JsonStringCommand body = gson.fromJson(text, JsonStringCommand.class);
-		 EventBus.getDefault().post(new ReceiveCommand(body));
-		 switch (body.getType()) {
-			 case Flip -> {
-				 EventBus.getDefault().post(new OnFlipReceive(body.GetAs(new TypeToken<Flip>() {
-				 }).getData()));
-			 }
-			 case ChatMessage -> {
-				 EventBus.getDefault().post(new OnChatMessageReceive(body.GetAs(new TypeToken<ChatMessage>() {
-				 }).getData()));
-			 }
-			 case PrivacySettings -> {
-				 // TODO: Update so that it is all handled library side
-			 }
-			 case WriteToChat -> {
-				 EventBus.getDefault().post(new OnWriteToChatReceive(body.GetAs(new TypeToken<ChatMessage[]>() {
-				 }).getData()));
-			 }
-			 case Execute -> {
-				 EventBus.getDefault().post(new OnExecuteCommand(body.getData()));
-			 }
-			 case Countdown -> {
-				 EventBus.getDefault().post(new OnCountdownReceive(body.GetAs(new TypeToken<Countdown>() {
-				 }).getData()));
-			 }
-			 case GetMods -> {
-				 EventBus.getDefault().post(new OnModRequestReceive());
-			 }
-			 case PlaySound -> {
-				 EventBus.getDefault().post(new OnPlaySoundReceive(body.GetAs(new TypeToken<Sound>() {
-				 }).getData()));
-			 }
-			 case ProxyRequest -> {
-				 ProxyRequest[] proxyRequests = body.GetAs(new TypeToken<ProxyRequest[]>() {
-				 }).getData();
+		 HandleCommand(body);
 
-				 for (ProxyRequest req : proxyRequests) {
-					 proxyManager.handleRequestAsync(req);
-				 }
-			 }
-		 }
+	}
+
+	public static void HandleCommand(JsonStringCommand body) {
+		EventBus.getDefault().post(new ReceiveCommand(body));
+		switch (body.getType()) {
+			case Flip -> {
+				EventBus.getDefault().post(new OnFlipReceive(body.GetAs(new TypeToken<Flip>() {
+				}).getData()));
+			}
+			case ChatMessage -> {
+				EventBus.getDefault().post(new OnChatMessageReceive(body.GetAs(new TypeToken<ChatMessage>() {
+				}).getData()));
+			}
+			case PrivacySettings -> {
+				// TODO: Update so that it is all handled library side
+			}
+			case WriteToChat -> {
+				EventBus.getDefault().post(new OnWriteToChatReceive(body.GetAs(new TypeToken<ChatMessage[]>() {
+				}).getData()));
+			}
+			case Execute -> {
+				EventBus.getDefault().post(new OnExecuteCommand(body.getData()));
+			}
+			case Countdown -> {
+				EventBus.getDefault().post(new OnCountdownReceive(body.GetAs(new TypeToken<Countdown>() {
+				}).getData()));
+			}
+			case GetMods -> {
+				EventBus.getDefault().post(new OnModRequestReceive());
+			}
+			case PlaySound -> {
+				EventBus.getDefault().post(new OnPlaySoundReceive(body.GetAs(new TypeToken<Sound>() {
+				}).getData()));
+			}
+			case ProxyRequest -> {
+				ProxyRequest[] proxyRequests = body.GetAs(new TypeToken<ProxyRequest[]>() {
+				}).getData();
+
+				for (ProxyRequest req : proxyRequests) {
+					proxyManager.handleRequestAsync(req);
+				}
+			}
+		}
 	}
 
 	@Override
