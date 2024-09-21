@@ -18,10 +18,6 @@ import java.util.regex.Pattern;
 
 public class EventRegistry {
     public static long LastClick = System.currentTimeMillis();
-    public static Boolean LastHotkeyState;
-    public static Boolean LastEventButtonState;
-    private static DescriptionHandler descriptionHandler;
-    public static long lastStartTime = Long.MIN_VALUE;
     public static final ExecutorService chatThreadPool = Executors.newFixedThreadPool(2);
     public static final ExecutorService tickThreadPool = Executors.newFixedThreadPool(2);
 
