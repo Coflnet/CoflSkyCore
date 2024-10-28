@@ -8,9 +8,12 @@ import java.nio.file.Paths;
 
 import CoflCore.configuration.Config;
 import CoflCore.configuration.LocalConfig;
+import CoflCore.events.SocketOpen;
 import CoflCore.network.WSClientWrapper;
 import CoflCore.proxy.APIKeyManager;
 import com.google.gson.Gson;
+import org.greenrobot.eventbus.EventBus;
+
 public class CoflCore {
     public static final String MODID = "CoflSky";
     public static final String VERSION = "1.5.4-Alpha";
@@ -30,6 +33,10 @@ public class CoflCore {
 
     public static String CommandUri = Config.BaseUrl + "/api/mod/commands";
     private final static APIKeyManager apiKeyManager = new APIKeyManager();
+
+    public void registerEventFile(Object target) {
+        EventBus.getDefault().register(target);
+    }
 
     public void init(Path configPath) {
         String configString = null;
