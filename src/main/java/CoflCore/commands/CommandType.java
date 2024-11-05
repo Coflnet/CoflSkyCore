@@ -60,7 +60,6 @@ public enum CommandType {
 	@SerializedName("proxy")
 	ProxyRequest;
 
-
 	public static Map<CommandType,String> data;
 	static {
 		data = new HashMap<>();

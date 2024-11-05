@@ -93,7 +93,7 @@ public class CoflSkyCommand {
 
     public static void stop(){
         CoflCore.Wrapper.stop();
-        EventBus.getDefault().post(new OnModChatMessage("you stopped the connection to §1C§6oflnet§r.\\n    To reconnect enter §b\"§r/cofl start§b\"§r or click this message\n"));
+        EventBus.getDefault().post(new OnModChatMessage("you stopped the connection to §1C§6oflnet§r.\n    To reconnect enter §b\"§r/cofl start§b\"§r or click this message\n"));
     }
 
     public static void callback(String[] args) {

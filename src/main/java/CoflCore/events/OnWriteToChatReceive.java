@@ -3,10 +3,10 @@ package CoflCore.events;
 import CoflCore.classes.ChatMessage;
 
 public class OnWriteToChatReceive {
-    public final ChatMessage[] ChatMessages;
+    public final ChatMessage ChatMessage;
 
-    public OnWriteToChatReceive(ChatMessage[] chatMessage) {
-        this.ChatMessages = chatMessage;
+    public OnWriteToChatReceive(ChatMessage chatMessage) {
+        this.ChatMessage = chatMessage;
     }
 }
 

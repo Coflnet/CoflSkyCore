@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 
 import CoflCore.configuration.Config;
 import CoflCore.configuration.LocalConfig;
-import CoflCore.events.SocketOpen;
+import CoflCore.misc.SessionManager;
 import CoflCore.network.WSClientWrapper;
 import CoflCore.proxy.APIKeyManager;
 import com.google.gson.Gson;
@@ -43,6 +43,7 @@ public class CoflCore {
         Gson gson = new Gson();
         coflDir = new File(configPath.toFile(), "CoflSky");
         coflDir.mkdirs();
+        SessionManager.setMainPath(Paths.get(coflDir.toString() + "/sessions"));
         configFile = new File(coflDir, "config.json");
         try {
             if (configFile.isFile()) {

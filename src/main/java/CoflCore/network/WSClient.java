@@ -104,6 +104,10 @@ public class WSClient extends WebSocketAdapter {
 	 public void onTextMessage(WebSocket websocket, String text) throws Exception{
 		 System.out.println("Received: "+ text);
 		 JsonStringCommand body = gson.fromJson(text, JsonStringCommand.class);
+		 if (body.getType() == null) {
+			 System.out.println("Received a unknown command: " + text);
+			 return;
+		 }
 		 HandleCommand(body);
 
 	}
@@ -116,14 +120,14 @@ public class WSClient extends WebSocketAdapter {
 				}).getData()));
 			}
 			case ChatMessage -> {
-				EventBus.getDefault().post(new OnChatMessageReceive(body.GetAs(new TypeToken<ChatMessage>() {
+				EventBus.getDefault().post(new OnChatMessageReceive(body.GetAs(new TypeToken<ChatMessage[]>() {
 				}).getData()));
 			}
 			case PrivacySettings -> {
 				// TODO: Update so that it is all handled library side
 			}
 			case WriteToChat -> {
-				EventBus.getDefault().post(new OnWriteToChatReceive(body.GetAs(new TypeToken<ChatMessage[]>() {
+				EventBus.getDefault().post(new OnWriteToChatReceive(body.GetAs(new TypeToken<ChatMessage>() {
 				}).getData()));
 			}
 			case Execute -> {

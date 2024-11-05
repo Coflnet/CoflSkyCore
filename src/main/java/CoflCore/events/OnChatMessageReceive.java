@@ -3,9 +3,9 @@ package CoflCore.events;
 import CoflCore.classes.ChatMessage;
 
 public class OnChatMessageReceive {
-    public final ChatMessage ChatMessage;
+    public final ChatMessage[] ChatMessages;
 
-    public OnChatMessageReceive(ChatMessage chatMessage) {
-        this.ChatMessage = chatMessage;
+    public OnChatMessageReceive(ChatMessage[] chatMessages) {
+        this.ChatMessages = chatMessages;
     }
 }
