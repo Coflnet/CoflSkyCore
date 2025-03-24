@@ -24,6 +24,8 @@ public class ChatMessage {
     @SerializedName("hover")
     private String Hover;
 
+    public ChatMessage() {}
+
     public ChatMessage(String text, String onClick, String hover) {
         Text = text;
         OnClick = onClick;
