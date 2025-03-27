@@ -38,7 +38,7 @@ public class EventRegistry {
     public static void onOpenLastFlip(String username){
         FlipData f = CoflCore.flipHandler.fds.GetLastFlip();
         if (f != null) {
-            String[] args = new String[]{"/cofl", "openauctiongui", f.Id, "false"};
+            String[] args = new String[]{"openauctiongui", f.Id, "false"};
             CoflSkyCommand.processCommand(args, username);
         }
     }
@@ -49,18 +49,18 @@ public class EventRegistry {
             FlipData f = CoflCore.flipHandler.fds.GetHighestFlip();
 
             if (f != null) {
-                CoflSkyCommand.processCommand(new String[]{"/cofl", "openauctiongui", f.Id, "true"}, username);
+                CoflSkyCommand.processCommand(new String[]{"openauctiongui", f.Id, "true"}, username);
                 EventRegistry.LastViewAuctionUUID = f.Id;
                 EventRegistry.LastViewAuctionInvocation = System.currentTimeMillis();
                 LastClick = System.currentTimeMillis();
                 String command = new Gson().toJson("/viewauction " + f.Id);
 
                 CoflCore.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
-                CoflSkyCommand.processCommand(new String[]{"/cofl", "track", "besthotkey", f.Id, username}, username);
+                CoflSkyCommand.processCommand(new String[]{"track", "besthotkey", f.Id, username}, username);
             } else {
                 // only display message once (if this is the key down event)
                 if (isInitialKeypress) {
-                    CoflSkyCommand.processCommand(new String[]{"/cofl", "dialog", "nobestflip", username}, username);
+                    CoflSkyCommand.processCommand(new String[]{"dialog", "nobestflip", username}, username);
                 }
             }
         }
