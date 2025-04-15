@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public class DescriptionHandler {
 
-    private static class DescModification {
+    public static class DescModification {
         public String type;
         public String value;
         public int line;
@@ -32,7 +32,7 @@ public class DescriptionHandler {
         }
     }
 
-    public DescModification[] getTooltipData(String id) {
+    public static DescModification[] getTooltipData(String id) {
         DescModification[] EMPTY_ARRAY = new DescModification[]{};
 
         if (tooltipItemIdMap.containsKey(id)) {
