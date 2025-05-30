@@ -3,10 +3,11 @@ package CoflCore.classes;
 import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Array;
+import java.util.List;
 
 public class AuctionItem {
 
-    public Array getEnchantments() {
+    public List getEnchantments() {
         return Enchantments;
     }
 
@@ -46,11 +47,11 @@ public class AuctionItem {
         return ProfileId;
     }
 
-    public Array getCoop() {
+    public List getCoop() {
         return Coop;
     }
 
-    public Array getCoopMembers() {
+    public List getCoopMembers() {
         return CoopMembers;
     }
 
@@ -58,7 +59,7 @@ public class AuctionItem {
         return HighestBid;
     }
 
-    public Array getBids() {
+    public List getBids() {
         return Bids;
     }
 
@@ -95,7 +96,7 @@ public class AuctionItem {
     }
 
     @SerializedName("enchantments")
-    private Array Enchantments;
+    private List Enchantments;
 
     @SerializedName("uuid")
     private String ItemId;
@@ -125,16 +126,16 @@ public class AuctionItem {
     private String ProfileId;
 
     @SerializedName("coop")
-    private Array Coop;
+    private List Coop;
 
     @SerializedName("coopMembers")
-    private Array CoopMembers;
+    private List CoopMembers;
 
     @SerializedName("highestBidAmount")
     private Integer HighestBid;
 
     @SerializedName("bids")
-    private Array Bids;
+    private List Bids;
 
     @SerializedName("anvilUses")
     private Integer AnvilUses;
@@ -163,7 +164,7 @@ public class AuctionItem {
     public AuctionItem() {
     }
 
-    public AuctionItem(Array enchantments, String itemId, Integer count, String startingPrice, String itemTag, String itemName, String start, String end, String auctioneerId, String profileId, Array coop, Array coopMembers, Integer highestBid, Array bids, Integer anvilUses, Object nbtData, String itemCreatedAt, String reforge, String category, String tier, Boolean bin, Object flatNbt) {
+    public AuctionItem(List enchantments, String itemId, Integer count, String startingPrice, String itemTag, String itemName, String start, String end, String auctioneerId, String profileId, List coop, List coopMembers, Integer highestBid, List bids, Integer anvilUses, Object nbtData, String itemCreatedAt, String reforge, String category, String tier, Boolean bin, Object flatNbt) {
         super();
         this.Enchantments = enchantments;
         this.ItemId = itemId;

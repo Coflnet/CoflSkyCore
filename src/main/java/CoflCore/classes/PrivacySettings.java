@@ -3,6 +3,7 @@ package CoflCore.classes;
 import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Array;
+import java.util.List;
 
 public class PrivacySettings {
 
@@ -61,7 +62,7 @@ public class PrivacySettings {
         return ExtendDescriptions;
     }
 
-    public Array getCommandPrefixes() {
+    public List getCommandPrefixes() {
         return CommandPrefixes;
     }
 
@@ -85,12 +86,12 @@ public class PrivacySettings {
     private Boolean ExtendDescriptions;
 
     @SerializedName("commandPrefixes")
-    private Array CommandPrefixes;
+    private List CommandPrefixes;
 
     @SerializedName("autoStart")
     private Boolean AutoStart;
 
-    public PrivacySettings(String chatRegex, Boolean collectChat, Boolean collectInventory, Boolean collectTab, Boolean collectScoreboard, Boolean allowProxy, Boolean collectLobbyChanges, Boolean collectEntities, Boolean collectLocation, Boolean extendDescriptions, Array commandPrefixes, Boolean autoStart) {
+    public PrivacySettings(String chatRegex, Boolean collectChat, Boolean collectInventory, Boolean collectTab, Boolean collectScoreboard, Boolean allowProxy, Boolean collectLobbyChanges, Boolean collectEntities, Boolean collectLocation, Boolean extendDescriptions, List commandPrefixes, Boolean autoStart) {
         super();
         this.ChatRegex = chatRegex;
         this.CollectChat = collectChat;

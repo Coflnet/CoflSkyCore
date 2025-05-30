@@ -2,9 +2,11 @@ package CoflCore.classes;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class Flip {
 
-    public ChatMessage[] getMessages() {
+    public List<ChatMessage> getMessages() {
         return Messages;
     }
 
@@ -33,7 +35,7 @@ public class Flip {
     }
 
     @SerializedName("messages")
-    private ChatMessage[] Messages;
+    private List<ChatMessage> Messages;
     @SerializedName("id")
     private String Id;
     @SerializedName("worth")
@@ -51,7 +53,7 @@ public class Flip {
     public Flip() {
     }
 
-    public Flip(ChatMessage[] messages, String id, int worth, Sound soundData ,AuctionItem auctionData, String render, String target) {
+    public Flip(List<ChatMessage> messages, String id, int worth, Sound soundData ,AuctionItem auctionData, String render, String target) {
         super();
         Messages = messages;
         Id = id;
