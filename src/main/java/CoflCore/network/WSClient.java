@@ -9,6 +9,9 @@ import CoflCore.commands.Command;
 import CoflCore.commands.JsonStringCommand;
 import CoflCore.commands.RawCommand;
 import CoflCore.commands.models.ProxyRequest;
+import CoflCore.configuration.Configuration;
+import CoflCore.configuration.ConfigurationManager;
+import CoflCore.configuration.LocalConfig;
 import CoflCore.events.*;
 import CoflCore.proxy.ProxyManager;
 import com.google.gson.Gson;
@@ -124,7 +127,7 @@ public class WSClient extends WebSocketAdapter {
 				}).getData()));
 			}
 			case PrivacySettings -> {
-				// TODO: Update so that it is all handled library side
+				new ConfigurationManager().UpdateConfiguration(body.getData());
 			}
 			case WriteToChat -> {
 				EventBus.getDefault().post(new OnWriteToChatReceive(body.GetAs(new TypeToken<ChatMessage>() {
