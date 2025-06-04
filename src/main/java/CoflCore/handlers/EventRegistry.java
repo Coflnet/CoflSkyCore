@@ -71,6 +71,9 @@ public class EventRegistry {
             return;
         chatThreadPool.submit(() -> {
             try {
+                if (chatpattern.pattern().compareTo(Configuration.getInstance().chatRegex) != 0){
+                    chatpattern = Pattern.compile(Configuration.getInstance().chatRegex, Pattern.CASE_INSENSITIVE);
+                }
                 Matcher matcher = chatpattern.matcher(msg);
                 boolean matchFound = matcher.find();
                 if (!matchFound)
