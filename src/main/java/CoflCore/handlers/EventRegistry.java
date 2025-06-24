@@ -67,7 +67,7 @@ public class EventRegistry {
     }
 
     public static void onChatMessage(String msg) {
-        if (!CoflCore.Wrapper.isRunning || !Configuration.getInstance().collectChat)
+        if (CoflCore.Wrapper == null || !CoflCore.Wrapper.isRunning || !Configuration.getInstance().collectChat)
             return;
         chatThreadPool.submit(() -> {
             try {
