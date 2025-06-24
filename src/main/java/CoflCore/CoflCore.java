@@ -18,7 +18,6 @@ public class CoflCore {
     public static final String MODID = "CoflSky";
     public static final String VERSION = "1.5.4-Alpha";
 
-    public static WSClientWrapper Wrapper;
     public static FlipHandler flipHandler = new FlipHandler();
 
     public static File configFile;
@@ -30,6 +29,7 @@ public class CoflCore {
             // fallback for old java versions not supporting new tls certificates
             "ws://sky-mod.coflnet.com/modsocket",
     };
+    public static WSClientWrapper Wrapper = new WSClientWrapper(webSocketURIPrefix);
 
     public static String CommandUri = Config.BaseUrl + "/api/mod/commands";
     private final static APIKeyManager apiKeyManager = new APIKeyManager();
@@ -63,7 +63,7 @@ public class CoflCore {
             exception.printStackTrace();
         }
 
-        CoflCore.Wrapper = new WSClientWrapper(webSocketURIPrefix);
+        //CoflCore.Wrapper = new WSClientWrapper(webSocketURIPrefix);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             config.saveConfig(configFile, config);
