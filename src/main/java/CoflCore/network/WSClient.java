@@ -134,7 +134,8 @@ public class WSClient extends WebSocketAdapter {
 				}).getData()));
 			}
 			case Execute -> {
-				EventBus.getDefault().post(new OnExecuteCommand(body.getData()));
+				EventBus.getDefault().post(new OnExecuteCommand(body.GetAs(new TypeToken<String>(){
+				}).getData()));
 			}
 			case Countdown -> {
 				EventBus.getDefault().post(new OnCountdownReceive(body.GetAs(new TypeToken<Countdown>() {
