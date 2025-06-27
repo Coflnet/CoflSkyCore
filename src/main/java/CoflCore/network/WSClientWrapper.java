@@ -132,10 +132,12 @@ public class WSClientWrapper {
     }
     
     public synchronized void SendMessage(RawCommand cmd){
-    	if(!this.isRunning) {
+		if (!this.isRunning) {
+			System.err.println("The SkyCofl connection appears to be closed. Attempting to restart...");
+			this.start();
+		}
+		if (this.isRunning) {
     		this.socket.SendCommand(cmd);
-		} else {
-			System.err.println("Tried sending a callback to coflnet but failed. The connection must be closed.");
 		}
     }
 
