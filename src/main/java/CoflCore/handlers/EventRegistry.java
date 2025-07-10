@@ -66,11 +66,20 @@ public class EventRegistry {
         }
     }
 
-    public static void onChatMessage(String msg) {
+    /**
+     * Should be invoked with every chat mesesage received.
+     * Expects unformatted chat messages (without color codes).
+     * It will batch messages that match the regex defined in the configuration.
+     */
+    public static void onChatMessage(String message) {
         if (CoflCore.Wrapper == null || !CoflCore.Wrapper.isRunning || !Configuration.getInstance().collectChat)
             return;
         chatThreadPool.submit(() -> {
             try {
+                String msg = message;
+                if (msg.contains("§")) {
+                    msg = msg.replaceAll("§.", "");
+                }
                 if (chatpattern.pattern().compareTo(Configuration.getInstance().chatRegex) != 0){
                     chatpattern = Pattern.compile(Configuration.getInstance().chatRegex, Pattern.CASE_INSENSITIVE);
                 }
