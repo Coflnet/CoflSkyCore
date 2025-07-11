@@ -7,6 +7,8 @@ import CoflCore.commands.RawCommand;
 import CoflCore.commands.models.FlipData;
 import CoflCore.configuration.Config;
 import CoflCore.configuration.GUIType;
+import CoflCore.events.OnCloseGUI;
+import CoflCore.events.OnGetInventory;
 import CoflCore.events.OnModChatMessage;
 import CoflCore.events.OnOpenAuctionGUI;
 import CoflCore.misc.SessionManager;
@@ -60,6 +62,12 @@ public class CoflSkyCommand {
                         break;
                     case "setgui":
                         setGUI(args);
+                        break;
+                    case "closegui":
+                        closeGUI();
+                        break;
+                    case "getinventory":
+                        getInventory();
                         break;
                     default:
                         sendCommandToServer(args, username);
@@ -220,6 +228,12 @@ public class CoflSkyCommand {
         }
     }
 
+    public static void closeGUI(){
+        EventBus.getDefault().post(new OnCloseGUI());
+    }
 
 
+    private static void getInventory() {
+        EventBus.getDefault().post(new OnGetInventory());
+    }
 }
