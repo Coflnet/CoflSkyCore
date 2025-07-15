@@ -4,7 +4,6 @@ import CoflCore.configuration.Config;
 import CoflCore.network.QueryServerCommands;
 import CoflCore.network.WSClient;
 import com.google.gson.JsonObject;
-
 import java.util.HashMap;
 
 public class DescriptionHandler {
@@ -17,10 +16,11 @@ public class DescriptionHandler {
 
     public static HashMap<String, DescModification[]> tooltipItemIdMap = new HashMap<>();
 
-    public static void loadDescriptionForInventory(String[] itemIdList, String chestName, String fullInventoryNBT, String username) {
+    public static void loadDescriptionForInventory(String[] itemIdList, String chestName, String fullInventoryNBT, String username, String position) {
         JsonObject body = new JsonObject();
         body.addProperty("chestName", chestName);
         body.addProperty("fullInventoryNbt", fullInventoryNBT);
+        if (position != null) body.addProperty("position", position);
 
         String info = QueryServerCommands.PostRequest(Config.BaseUrl + "/api/mod/description/modifications", body.toString(), username);
         DescModification[][] arr = WSClient.gson.fromJson(info, DescModification[][].class);
@@ -30,6 +30,10 @@ public class DescriptionHandler {
             if (id.length() > 0)
                 tooltipItemIdMap.put(id, arr[i]);
         }
+    }
+
+    public static void loadDescriptionForInventory(String[] itemIdList, String chestName, String fullInventoryNBT, String username) {
+        loadDescriptionForInventory(itemIdList, chestName, fullInventoryNBT, username, null);
     }
 
     public static DescModification[] getTooltipData(String id) {
