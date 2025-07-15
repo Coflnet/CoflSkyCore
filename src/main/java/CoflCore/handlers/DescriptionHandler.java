@@ -18,9 +18,8 @@ public class DescriptionHandler {
 
     public static void loadDescriptionForInventory(String[] itemIdList, String chestName, String fullInventoryNBT, String username, String position) {
         JsonObject body = new JsonObject();
-        body.addProperty("chestName", chestName);
+        body.addProperty("chestName", position == null ? chestName : chestName+position);
         body.addProperty("fullInventoryNbt", fullInventoryNBT);
-        if (position != null) body.addProperty("position", position);
 
         String info = QueryServerCommands.PostRequest(Config.BaseUrl + "/api/mod/description/modifications", body.toString(), username);
         DescModification[][] arr = WSClient.gson.fromJson(info, DescModification[][].class);
