@@ -1,10 +1,7 @@
 package CoflCore.network;
 
 import CoflCore.CoflCore;
-import CoflCore.classes.ChatMessage;
-import CoflCore.classes.Countdown;
-import CoflCore.classes.Flip;
-import CoflCore.classes.Sound;
+import CoflCore.classes.*;
 import CoflCore.commands.Command;
 import CoflCore.commands.JsonStringCommand;
 import CoflCore.commands.RawCommand;
@@ -23,6 +20,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.IOException;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 public class WSClient extends WebSocketAdapter {
 
@@ -146,6 +144,10 @@ public class WSClient extends WebSocketAdapter {
 			}
 			case PlaySound -> {
 				EventBus.getDefault().post(new OnPlaySoundReceive(body.GetAs(new TypeToken<Sound>() {
+				}).getData()));
+			}
+			case HighlightBlocks -> {
+				EventBus.getDefault().post(new OnHighlightBlocks(body.GetAs(new TypeToken<List<Position>>(){
 				}).getData()));
 			}
 			case ProxyRequest -> {
