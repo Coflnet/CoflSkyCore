@@ -150,6 +150,10 @@ public class WSClient extends WebSocketAdapter {
 				EventBus.getDefault().post(new OnHighlightBlocks(body.GetAs(new TypeToken<List<Position>>(){
 				}).getData()));
 				break;
+            case RegisterKeybind:
+                EventBus.getDefault().post(body.GetAs(new TypeToken<HotkeyRegister[]>() {
+                }).getData());
+                break;
 			case ProxyRequest:
 				ProxyRequest[] proxyRequests = body.GetAs(new TypeToken<ProxyRequest[]>() {
 				}).getData();
