@@ -116,48 +116,50 @@ public class WSClient extends WebSocketAdapter {
 	public static void HandleCommand(JsonStringCommand body) {
 		EventBus.getDefault().post(new ReceiveCommand(body));
 		switch (body.getType()) {
-			case Flip -> {
+			case Flip:
 				EventBus.getDefault().post(new OnFlipReceive(body.GetAs(new TypeToken<Flip>() {
 				}).getData()));
-			}
-			case ChatMessage -> {
+				break;
+			case ChatMessage:
 				EventBus.getDefault().post(new OnChatMessageReceive(body.GetAs(new TypeToken<ChatMessage[]>() {
 				}).getData()));
-			}
-			case PrivacySettings -> {
+				break;
+			case PrivacySettings:
 				new ConfigurationManager().UpdateConfiguration(body.getData());
-			}
-			case WriteToChat -> {
+				break;
+			case WriteToChat:
 				EventBus.getDefault().post(new OnWriteToChatReceive(body.GetAs(new TypeToken<ChatMessage>() {
 				}).getData()));
-			}
-			case Execute -> {
+				break;
+			case Execute:
 				EventBus.getDefault().post(new OnExecuteCommand(body.GetAs(new TypeToken<String>(){
 				}).getData()));
-			}
-			case Countdown -> {
+				break;
+			case Countdown:
 				EventBus.getDefault().post(new OnCountdownReceive(body.GetAs(new TypeToken<Countdown>() {
 				}).getData()));
-			}
-			case GetMods -> {
+				break;
+			case GetMods:
 				EventBus.getDefault().post(new OnModRequestReceive());
-			}
-			case PlaySound -> {
+				break;
+			case PlaySound:
 				EventBus.getDefault().post(new OnPlaySoundReceive(body.GetAs(new TypeToken<Sound>() {
 				}).getData()));
-			}
-			case HighlightBlocks -> {
+				break;
+			case HighlightBlocks:
 				EventBus.getDefault().post(new OnHighlightBlocks(body.GetAs(new TypeToken<List<Position>>(){
 				}).getData()));
-			}
-			case ProxyRequest -> {
+				break;
+			case ProxyRequest:
 				ProxyRequest[] proxyRequests = body.GetAs(new TypeToken<ProxyRequest[]>() {
 				}).getData();
 
 				for (ProxyRequest req : proxyRequests) {
 					proxyManager.handleRequestAsync(req);
 				}
-			}
+				break;
+			default:
+				break;
 		}
 	}
 
