@@ -117,18 +117,18 @@ public class WSClient extends WebSocketAdapter {
 		EventBus.getDefault().post(new ReceiveCommand(body));
 		switch (body.getType()) {
 			case Flip:
-				EventBus.getDefault().post(new OnFlipReceive(body.GetAs(new TypeToken<Flip>() {
+				EventBus.getDefault().post(new OnFlipReceive(body.GetAs(new TypeToken<FlipData>() {
 				}).getData()));
 				break;
 			case ChatMessage:
-				EventBus.getDefault().post(new OnChatMessageReceive(body.GetAs(new TypeToken<ChatMessage[]>() {
+				EventBus.getDefault().post(new OnChatMessageReceive(body.GetAs(new TypeToken<ChatMessageData[]>() {
 				}).getData()));
 				break;
 			case PrivacySettings:
 				new ConfigurationManager().UpdateConfiguration(body.getData());
 				break;
 			case WriteToChat:
-				EventBus.getDefault().post(new OnWriteToChatReceive(body.GetAs(new TypeToken<ChatMessage>() {
+				EventBus.getDefault().post(new OnWriteToChatReceive(body.GetAs(new TypeToken<ChatMessageData>() {
 				}).getData()));
 				break;
 			case Execute:

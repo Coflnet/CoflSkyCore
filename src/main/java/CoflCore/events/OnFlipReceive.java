@@ -1,11 +1,11 @@
 package CoflCore.events;
 
-import CoflCore.classes.Flip;
+import CoflCore.commands.models.FlipData;
 
 public class OnFlipReceive {
-    public final Flip FlipData;
+    public final FlipData FlipData;
 
-    public OnFlipReceive(Flip flipData) {
+    public OnFlipReceive(FlipData flipData) {
         this.FlipData = flipData;
     }
 }

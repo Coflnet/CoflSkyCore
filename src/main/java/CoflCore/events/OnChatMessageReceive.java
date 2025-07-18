@@ -1,11 +1,11 @@
 package CoflCore.events;
 
-import CoflCore.classes.ChatMessage;
+import CoflCore.commands.models.ChatMessageData;
 
 public class OnChatMessageReceive {
-    public final ChatMessage[] ChatMessages;
+    public final ChatMessageData[] ChatMessages;
 
-    public OnChatMessageReceive(ChatMessage[] chatMessages) {
+    public OnChatMessageReceive(ChatMessageData[] chatMessages) {
         this.ChatMessages = chatMessages;
     }
 }
