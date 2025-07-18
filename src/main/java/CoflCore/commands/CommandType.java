@@ -62,7 +62,7 @@ public enum CommandType {
 	@SerializedName("registerKeybind")
 	RegisterKeybind,
 	@SerializedName("getScoreboard")
-	GetScoreboard;
+	GetScoreboard,
 	@SerializedName("highlightBlocks")
 	HighlightBlocks;
 

@@ -2,10 +2,10 @@ package CoflCore.network;
 
 import CoflCore.CoflCore;
 import CoflCore.classes.*;
+import CoflCore.commands.models.*;
 import CoflCore.commands.Command;
 import CoflCore.commands.JsonStringCommand;
 import CoflCore.commands.RawCommand;
-import CoflCore.commands.models.ProxyRequest;
 import CoflCore.configuration.Configuration;
 import CoflCore.configuration.ConfigurationManager;
 import CoflCore.configuration.LocalConfig;
