@@ -9,13 +9,14 @@ import java.util.HashMap;
 
 public class DescriptionHandler {
 
-    public static class DescModification {
+    public class DescModification {
         public String type;
         public String value;
         public int line;
     }
 
     public static HashMap<String, DescModification[]> tooltipItemIdMap = new HashMap<>();
+    private static DescModification[] infoDisplay = new DescModification[0];
 
     public static void loadDescriptionForInventory(String[] itemIdList, String chestName, String fullInventoryNBT, String username, Position position) {
         JsonObject body = new JsonObject();
@@ -31,6 +32,9 @@ public class DescriptionHandler {
             if (id.length() > 0)
                 tooltipItemIdMap.put(id, arr[i]);
         }
+
+        if(itemIdList.length < arr.length)
+            infoDisplay = arr[arr.length - 1];
     }
 
     public static void loadDescriptionForInventory(String[] itemIdList, String chestName, String fullInventoryNBT, String username) {
@@ -45,6 +49,10 @@ public class DescriptionHandler {
         }
 
         return EMPTY_ARRAY;
+    }
+
+    public static DescModification[] getInfoDisplay() {
+        return infoDisplay;
     }
 
     /**
