@@ -191,6 +191,7 @@ public class CoflSkyCommand {
         // Is not a stored flip -> just open the auction
         if (flip == null) {
             CoflCore.flipHandler.lastClickedFlipMessage = "";
+            EventBus.getDefault().post(new OnOpenAuctionGUI("/viewauction " + args[1], null));
             return;
         }
 
