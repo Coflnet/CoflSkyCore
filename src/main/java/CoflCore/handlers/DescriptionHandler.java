@@ -35,6 +35,8 @@ public class DescriptionHandler {
 
         if(itemIdList.length < arr.length)
             infoDisplay = arr[arr.length - 1];
+        else 
+            infoDisplay = new DescModification[0];
     }
 
     public static void loadDescriptionForInventory(String[] itemIdList, String chestName, String fullInventoryNBT, String username) {
