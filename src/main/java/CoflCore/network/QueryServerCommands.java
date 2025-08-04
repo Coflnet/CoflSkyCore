@@ -119,6 +119,10 @@ public class QueryServerCommands {
 			byte[] bytes = data.getBytes("UTF-8");
 			os.write(bytes);
 			os.close();
+			int responseCode = con.getResponseCode();
+			if (responseCode < 200 || responseCode >= 400) {
+				throw new IOException("HTTP error code: " + responseCode);
+			}
 
 			InputStream in = new BufferedInputStream(con.getInputStream());
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
