@@ -162,6 +162,9 @@ public class WSClient extends WebSocketAdapter {
 					proxyManager.handleRequestAsync(req);
 				}
 				break;
+			case Ping:
+				// nothing to do on ping, just sent to keep connection alive
+				break;
 			default:
 				break;
 		}

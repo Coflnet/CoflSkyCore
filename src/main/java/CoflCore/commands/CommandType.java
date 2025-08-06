@@ -11,7 +11,8 @@ public enum CommandType {
 	WriteToChat,
 	@SerializedName("set")
 	set,
-
+	@SerializedName("ping")
+	Ping,
 	@SerializedName("execute")
 	Execute,
 
