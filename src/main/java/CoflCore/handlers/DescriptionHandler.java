@@ -26,6 +26,7 @@ public class DescriptionHandler {
     public static void loadDescriptionForInventory(String[] itemIdList, String chestName, String fullInventoryNBT, String username, Position position) {
         JsonObject body = new JsonObject();
         body.addProperty("chestName", chestName);
+        body.addProperty("Version", 2);
         body.addProperty("fullInventoryNbt", fullInventoryNBT);
         if (position != null) body.add("position", WSClient.gson.toJsonTree(position, Position.class));
 
@@ -53,13 +54,11 @@ public class DescriptionHandler {
     }
 
     public static DescModification[] getTooltipData(String id) {
-        DescModification[] EMPTY_ARRAY = new DescModification[]{};
-
         if (tooltipItemIdMap.containsKey(id)) {
             return tooltipItemIdMap.getOrDefault(id, EMPTY_ARRAY);
         }
 
-        return EMPTY_ARRAY;
+        return null;
     }
 
     public static DescModification[] getInfoDisplay() {
