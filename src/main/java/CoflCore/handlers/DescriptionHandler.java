@@ -9,6 +9,10 @@ import java.util.HashMap;
 
 public class DescriptionHandler {
 
+    public interface DescriptionRefreshCallback {
+        void onDescriptionRefresh(String[] itemIdList, String chestName);
+    }
+
     public class DescModification {
         public String type;
         public String value;
@@ -17,6 +21,7 @@ public class DescriptionHandler {
 
     public static HashMap<String, DescModification[]> tooltipItemIdMap = new HashMap<>();
     private static DescModification[] infoDisplay = new DescModification[0];
+    private static DescriptionRefreshCallback refreshCallback;
 
     public static void loadDescriptionForInventory(String[] itemIdList, String chestName, String fullInventoryNBT, String username, Position position) {
         JsonObject body = new JsonObject();
@@ -37,6 +42,10 @@ public class DescriptionHandler {
             infoDisplay = arr[arr.length - 1];
         else 
             infoDisplay = new DescModification[0];
+
+        if (refreshCallback != null) {
+            refreshCallback.onDescriptionRefresh(itemIdList, chestName);
+        }
     }
 
     public static void loadDescriptionForInventory(String[] itemIdList, String chestName, String fullInventoryNBT, String username) {
@@ -55,6 +64,10 @@ public class DescriptionHandler {
 
     public static DescModification[] getInfoDisplay() {
         return infoDisplay;
+    }
+
+    public static void setRefreshCallback(DescriptionRefreshCallback callback) {
+        refreshCallback = callback;
     }
 
     /**
