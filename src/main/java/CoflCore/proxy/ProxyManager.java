@@ -97,7 +97,8 @@ public class ProxyManager {
                         while ((line = errorReader.readLine()) != null) {
                             errorOutput.append(line).append(System.lineSeparator());
                         }
-                        System.err.println("Chromium process exited with code " + exitCode + ": " + errorOutput.toString());
+                        future.complete(output.toString());
+                        System.err.println("Chromium process exited with code " + exitCode + " output " + output.toString().length() + ": " + errorOutput.toString());
                         future.completeExceptionally(new RuntimeException("Chromium process exited with code " + exitCode + ": " + errorOutput.toString()));
                     }
                 }catch (Exception exception){
