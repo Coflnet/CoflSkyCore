@@ -154,6 +154,10 @@ public class WSClient extends WebSocketAdapter {
                 EventBus.getDefault().post(body.GetAs(new TypeToken<HotkeyRegister[]>() {
                 }).getData());
                 break;
+            case OpenUrl:
+                openUrl(body.GetAs(new TypeToken<String>() {
+				}).getData());
+                break;
 			case ProxyRequest:
 				ProxyRequest[] proxyRequests = body.GetAs(new TypeToken<ProxyRequest[]>() {
 				}).getData();
@@ -179,6 +183,25 @@ public class WSClient extends WebSocketAdapter {
 	@Override
 	public void onError(WebSocket websocket, WebSocketException cause)	 {
 		EventBus.getDefault().post(new SocketError(cause));
+	}
+
+	public static void openUrl(String url) {
+		try {
+			String os = System.getProperty("os.name").toLowerCase();
+			Runtime rt = Runtime.getRuntime();
+
+			if (os.contains("win")) {
+				rt.exec("rundll32 url.dll,FileProtocolHandler " + url);
+			} else if (os.contains("mac")) {
+				rt.exec("open " + url);
+			} else if (os.contains("nix") || os.contains("nux")) {
+				rt.exec("xdg-open " + url);
+			} else {
+				System.err.println("Cannot open URL: unsupported operating system.");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void SendCommand(Command cmd) {

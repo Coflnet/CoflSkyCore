@@ -62,6 +62,8 @@ public enum CommandType {
 	ProxyRequest,
 	@SerializedName("registerKeybind")
 	RegisterKeybind,
+	@SerializedName("openurl")
+	OpenUrl,
 	@SerializedName("getScoreboard")
 	GetScoreboard,
 	@SerializedName("highlightBlocks")
