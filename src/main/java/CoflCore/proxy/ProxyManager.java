@@ -30,7 +30,7 @@ public class ProxyManager {
             for (int length; (length = in.read(buffer)) != -1; ) {
                 result.write(buffer, 0, length);
             }
-            String resString = result.toString(StandardCharsets.UTF_8);
+            String resString = result.toString("UTF-8");
             return resString;
         } catch(IOException e){
             return null;
