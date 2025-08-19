@@ -6,6 +6,7 @@ import CoflCore.commands.models.ProxyRequest;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,7 +30,7 @@ public class ProxyManager {
             for (int length; (length = in.read(buffer)) != -1; ) {
                 result.write(buffer, 0, length);
             }
-            String resString = result.toString("UTF-8");
+            String resString = result.toString(StandardCharsets.UTF_8);
             return resString;
         } catch(IOException e){
             return null;
@@ -51,7 +52,7 @@ public class ProxyManager {
                     con.setDoInput(true);
 
                     OutputStream os = con.getOutputStream();
-                    os.write(data.getBytes("UTF-8"));
+                    os.write(data.getBytes(StandardCharsets.UTF_8));
                     os.close();
                     String response = getString(con);
                     System.out.println("Response=" + response);
@@ -96,6 +97,7 @@ public class ProxyManager {
                         while ((line = errorReader.readLine()) != null) {
                             errorOutput.append(line).append(System.lineSeparator());
                         }
+                        System.err.println("Chromium process exited with code " + exitCode + ": " + errorOutput.toString());
                         future.completeExceptionally(new RuntimeException("Chromium process exited with code " + exitCode + ": " + errorOutput.toString()));
                     }
                 }catch (Exception exception){
@@ -112,13 +114,13 @@ public class ProxyManager {
 
 
                 ProcessBuilder pb = new ProcessBuilder(
-                        chromeExecutable,
+                        '"' + chromeExecutable + '"',
                         "--headless",
-                        "--disable-gpu", // Often needed for headless mode
-                        "--user-data-dir=" + userDataDir.getAbsolutePath(),
+                        "--disable-gpu",
+                        "--user-data-dir=\"" + userDataDir.getAbsolutePath()  + '"',
                         "--dump-dom",
-                        "--user-agent=" + userAgent,
-                        targetUrl
+                        "--user-agent=\"" + userAgent + '"',
+                        '"' + targetUrl + '"'
                 );
 
                 System.out.println("Running command: " + String.join(" ", pb.command()));
