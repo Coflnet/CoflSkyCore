@@ -115,13 +115,13 @@ public class ProxyManager {
 
 
                 ProcessBuilder pb = new ProcessBuilder(
-                        '"' + chromeExecutable + '"',
+                        chromeExecutable,
                         "--headless",
                         "--disable-gpu",
-                        "--user-data-dir=\"" + userDataDir.getAbsolutePath()  + '"',
+                        "--user-data-dir=" + userDataDir.getAbsolutePath(),
                         "--dump-dom",
-                        "--user-agent=\"" + userAgent + '"',
-                        '"' + targetUrl + '"'
+                        "--user-agent=" + userAgent,
+                        targetUrl
                 );
 
                 System.out.println("Running command: " + String.join(" ", pb.command()));
