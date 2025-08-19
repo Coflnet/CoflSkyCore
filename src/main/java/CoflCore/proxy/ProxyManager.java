@@ -47,18 +47,27 @@ public class ProxyManager {
                     con.setRequestMethod("POST");
 
                     con.setRequestProperty("X-Request-Id", id);
-                    byte[] contentBytes = data == null ? new byte[0] : data.getBytes(StandardCharsets.UTF_8);
                     con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                    con.setRequestProperty("Content-Length", String.valueOf(contentBytes.length));
                     con.setRequestProperty("Accept", "application/json");
                     con.setRequestProperty("User-Agent", "CoflMod");
+                    con.setRequestProperty("Content-Encoding", "gzip");
 
                     con.setDoOutput(true);
                     con.setDoInput(true);
 
-                    OutputStream os = con.getOutputStream();
-                    os.write(contentBytes);
-                    os.close();
+                    // Use chunked streaming so we don't need to know compressed length up-front
+                    con.setChunkedStreamingMode(0);
+
+                    try (OutputStream os = con.getOutputStream();
+                         java.io.BufferedOutputStream bos = new java.io.BufferedOutputStream(os);
+                         java.util.zip.GZIPOutputStream gos = new java.util.zip.GZIPOutputStream(bos)) {
+                        if (data != null && !data.isEmpty()) {
+                            byte[] contentBytes = data.getBytes(StandardCharsets.UTF_8);
+                            gos.write(contentBytes);
+                        }
+                        gos.finish();
+                    }
+
                     String response = getString(con);
                     int responseCode = con.getResponseCode();
                     System.out.println("Response code=" + responseCode + " Response=" + response);
