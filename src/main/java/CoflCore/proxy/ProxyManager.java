@@ -60,7 +60,8 @@ public class ProxyManager {
                     os.write(contentBytes);
                     os.close();
                     String response = getString(con);
-                    System.out.println("Response=" + response);
+                    int responseCode = con.getResponseCode();
+                    System.out.println("Response code=" + responseCode + " Response=" + response);
                 }catch (Exception exception){
                     exception.printStackTrace();
                 }
