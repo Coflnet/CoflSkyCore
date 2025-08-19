@@ -110,6 +110,7 @@ public class ProxyManager {
                     userDataDir.mkdirs();
                 }
 
+
                 ProcessBuilder pb = new ProcessBuilder(
                         chromeExecutable,
                         "--headless",
@@ -119,6 +120,8 @@ public class ProxyManager {
                         "--user-agent=" + userAgent,
                         targetUrl
                 );
+
+                System.out.println("Running command: " + String.join(" ", pb.command()));
 
                 return pb.start();
             }

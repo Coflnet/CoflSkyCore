@@ -109,7 +109,12 @@ public class WSClient extends WebSocketAdapter {
 			 System.out.println("Received a unknown command: " + text);
 			 return;
 		 }
-		 HandleCommand(body);
+		 try {
+		 	HandleCommand(body);
+		 } catch (Exception e) {
+			 System.out.println("Error while handling command: " + body.getType() + " with data: " + body.getData());
+			 e.printStackTrace();
+		 }
 
 	}
 
