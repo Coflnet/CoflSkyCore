@@ -3,14 +3,16 @@ package CoflCore.commands.models;
 import com.google.gson.annotations.SerializedName;
 
 public class ProxyRequest {
-    @SerializedName("upload")
-    private boolean uploadEnabled;
+    @SerializedName("uploadTo")
+    private String uploadTo;
 
     @SerializedName("id")
     private String id;
 
     @SerializedName("url")
     private String url;
+    @SerializedName("userAgent")
+    private String userAgent;
 
 
     public String getId(){
@@ -21,7 +23,10 @@ public class ProxyRequest {
         return url;
     }
 
-    public boolean isUploadEnabled(){
-        return this.uploadEnabled;
+    public String getUserAgent() {
+        return userAgent;
+    }
+    public String getUploadTo() {
+        return uploadTo;
     }
 }
