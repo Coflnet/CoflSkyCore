@@ -47,12 +47,17 @@ public class ProxyManager {
                     con.setRequestMethod("POST");
 
                     con.setRequestProperty("X-Request-Id", id);
+                    byte[] contentBytes = data == null ? new byte[0] : data.getBytes(StandardCharsets.UTF_8);
+                    con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                    con.setRequestProperty("Content-Length", String.valueOf(contentBytes.length));
+                    con.setRequestProperty("Accept", "application/json");
+                    con.setRequestProperty("User-Agent", "CoflMod");
 
                     con.setDoOutput(true);
                     con.setDoInput(true);
 
                     OutputStream os = con.getOutputStream();
-                    os.write(data.getBytes(StandardCharsets.UTF_8));
+                    os.write(contentBytes);
                     os.close();
                     String response = getString(con);
                     System.out.println("Response=" + response);
