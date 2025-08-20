@@ -13,6 +13,8 @@ public class ProxyRequest {
     private String url;
     @SerializedName("userAgent")
     private String userAgent;
+    @SerializedName("regex")
+    private String regex;
 
 
     public String getId(){
@@ -28,5 +30,8 @@ public class ProxyRequest {
     }
     public String getUploadTo() {
         return uploadTo;
+    }
+    public String getRegex() {
+        return regex;
     }
 }

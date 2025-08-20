@@ -18,7 +18,7 @@ public class ProxyManager {
         String userAgent = request.getUserAgent() != null ? request.getUserAgent() : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36";
         CompletableFuture<String> req = this.doRequest(request.getUrl(), userAgent);
         if(request.getUploadTo() != null) {
-            req.thenAcceptAsync(res -> this.uploadData(res,request.getId(), request.getUploadTo()));
+            req.thenAcceptAsync(res -> this.uploadData(res,request.getId(), request.getUploadTo(), request.getRegex()));
         }
     }
 
@@ -37,11 +37,24 @@ public class ProxyManager {
         }
     }
 
-    public void uploadData(String data, String id, String uploadTo){
+    public void uploadData(String data, String id, String uploadTo, String selectRegex){
         this.requestExecutor.submit(new Runnable() {
             @Override
             public void run() {
                 try{
+                    String uploadData = data;
+
+                    if(selectRegex != null && !selectRegex.isEmpty()){
+                        try {
+                            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(selectRegex, java.util.regex.Pattern.DOTALL);
+                            java.util.regex.Matcher matcher = pattern.matcher(uploadData != null ? uploadData : "");
+                            if (matcher.find()) {
+                                uploadData = matcher.groupCount() >= 1 ? matcher.group(1) : matcher.group(0);
+                            }
+                        } catch (java.util.regex.PatternSyntaxException e) {
+                            System.err.println("Invalid selectRegex: " + e.getMessage());
+                        }
+                    }
                     URL url = new URL(uploadTo);
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
                     con.setRequestMethod("POST");
@@ -61,8 +74,8 @@ public class ProxyManager {
                     try (OutputStream os = con.getOutputStream();
                          java.io.BufferedOutputStream bos = new java.io.BufferedOutputStream(os);
                          java.util.zip.GZIPOutputStream gos = new java.util.zip.GZIPOutputStream(bos)) {
-                        if (data != null && !data.isEmpty()) {
-                            byte[] contentBytes = data.getBytes(StandardCharsets.UTF_8);
+                        if (uploadData != null && !uploadData.isEmpty()) {
+                            byte[] contentBytes = uploadData.getBytes(StandardCharsets.UTF_8);
                             gos.write(contentBytes);
                         }
                         gos.finish();
