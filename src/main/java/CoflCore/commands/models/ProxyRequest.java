@@ -15,7 +15,8 @@ public class ProxyRequest {
     private String userAgent;
     @SerializedName("regex")
     private String regex;
-
+    @SerializedName("waitMs")
+    private int waitMs;
 
     public String getId(){
         return id;
@@ -33,5 +34,8 @@ public class ProxyRequest {
     }
     public String getRegex() {
         return regex;
+    }
+    public int getWaitMs() {
+        return waitMs;
     }
 }

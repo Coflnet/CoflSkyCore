@@ -170,6 +170,9 @@ public class WSClient extends WebSocketAdapter {
 				for (ProxyRequest req : proxyRequests) {
 					proxyManager.handleRequestAsync(req);
 				}
+                if(proxyRequests.length == 0){
+                    proxyManager.resetChromeData();
+                }
 				break;
 			case Ping:
 				// nothing to do on ping, just sent to keep connection alive

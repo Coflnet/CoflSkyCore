@@ -16,9 +16,36 @@ public class ProxyManager {
 
     public void handleRequestAsync(ProxyRequest request){
         String userAgent = request.getUserAgent() != null ? request.getUserAgent() : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36";
-        CompletableFuture<String> req = this.doRequest(request.getUrl(), userAgent);
+        int waitMs = request.getWaitMs() > 0 ? request.getWaitMs() : 1000; // unless this is a loadtest, wait 1 second
+        CompletableFuture<String> req = this.doRequest(request.getUrl(), userAgent, waitMs);
         if(request.getUploadTo() != null) {
             req.thenAcceptAsync(res -> this.uploadData(res,request.getId(), request.getUploadTo(), request.getRegex()));
+        }
+    }
+
+    public void resetChromeData(){
+        File userDataDir = getChromeDataDir();
+        if (userDataDir.exists()) {
+            try {
+                java.nio.file.Path root = userDataDir.toPath();
+                if (java.nio.file.Files.exists(root)) {
+                    java.nio.file.Files.walkFileTree(root, new java.nio.file.SimpleFileVisitor<java.nio.file.Path>() {
+                        @Override
+                        public java.nio.file.FileVisitResult visitFile(java.nio.file.Path file, java.nio.file.attribute.BasicFileAttributes attrs) throws java.io.IOException {
+                            java.nio.file.Files.deleteIfExists(file);
+                            return java.nio.file.FileVisitResult.CONTINUE;
+                        }
+
+                        @Override
+                        public java.nio.file.FileVisitResult postVisitDirectory(java.nio.file.Path dir, java.io.IOException exc) throws java.io.IOException {
+                            java.nio.file.Files.deleteIfExists(dir);
+                            return java.nio.file.FileVisitResult.CONTINUE;
+                        }
+                    });
+                }
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -92,7 +119,7 @@ public class ProxyManager {
     }
 
 
-    private CompletableFuture<String> doRequest(String targetUrl, String userAgent){
+    private CompletableFuture<String> doRequest(String targetUrl, String userAgent, int waitMs){
         CompletableFuture<String> future = new CompletableFuture<>();
 
         this.requestExecutor.submit(new Runnable() {
@@ -103,7 +130,7 @@ public class ProxyManager {
                     if (chromeExecutable == null) {
                         chromeExecutable = "chromium";
                     }
-                    System.out.println("Using chrome executable: " + chromeExecutable);
+                    Thread.sleep(waitMs); // wait for the specified time before starting the process
 
                     Process process = runChrome(chromeExecutable);
 
@@ -135,12 +162,7 @@ public class ProxyManager {
             }
 
             private Process runChrome(String chromeExecutable) throws IOException {
-                File configDir = CoflCore.configFile.getParentFile();
-                File userDataDir = new File(configDir, "chrome-profile");
-                if (!userDataDir.exists()) {
-                    userDataDir.mkdirs();
-                }
-
+                File userDataDir = getChromeDataDir();
 
                 ProcessBuilder pb = new ProcessBuilder(
                         chromeExecutable,
@@ -159,6 +181,15 @@ public class ProxyManager {
         });
 
         return future;
+    }
+
+    private static File getChromeDataDir() {
+        File configDir = CoflCore.configFile.getParentFile();
+        File userDataDir = new File(configDir, "chrome-profile");
+        if (!userDataDir.exists()) {
+            userDataDir.mkdirs();
+        }
+        return userDataDir;
     }
 
 
