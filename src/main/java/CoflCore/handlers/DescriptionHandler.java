@@ -26,7 +26,7 @@ public class DescriptionHandler {
     public static void loadDescriptionForInventory(String[] itemIdList, String chestName, String fullInventoryNBT, String username, Position position) {
         JsonObject body = new JsonObject();
         body.addProperty("chestName", chestName);
-        body.addProperty("version", 2);
+        body.addProperty("version", 3);
         body.addProperty("fullInventoryNbt", fullInventoryNBT);
         if (position != null) body.add("position", WSClient.gson.toJsonTree(position, Position.class));
 
