@@ -25,6 +25,8 @@ public class LocalConfig {
     }
 
     public void initCommands() {
+        if(this.knownCommands == null)
+            this.knownCommands = new HashMap<>();
         if (!this.knownCommands.isEmpty()) {
             return;
         }
