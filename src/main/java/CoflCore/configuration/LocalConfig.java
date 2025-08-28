@@ -16,7 +16,7 @@ public class LocalConfig {
     public HashMap<String,String> knownCommands;
 
     public LocalConfig(boolean autoStart, boolean extendedtooltips, GUIType purchaseOverlay, HashMap<String,String> knownCommands) {
-        this.knownCommands = knownCommands != null ? knownCommands : new HashMap<>();
+        this.knownCommands = knownCommands;
         this.autoStart = autoStart;
         this.extendedtooltips = extendedtooltips;
         this.purchaseOverlay = purchaseOverlay;

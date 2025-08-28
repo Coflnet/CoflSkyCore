@@ -182,6 +182,7 @@ public class WSClient extends WebSocketAdapter {
                 CoflCore.config.knownCommands.putAll(
 					gson.fromJson(body.getData(), new TypeToken<java.util.HashMap<String, String>>(){}.getType())
 				);
+				System.out.println("Updated commands: " + CoflCore.config.knownCommands.size());
                 break;
 			default:
 				break;
