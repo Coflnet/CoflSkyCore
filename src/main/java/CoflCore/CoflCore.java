@@ -49,6 +49,7 @@ public class CoflCore {
             if (configFile.isFile()) {
                 configString = new String(Files.readAllBytes(Paths.get(configFile.getPath())));
                 config = gson.fromJson(configString, LocalConfig.class);
+                config.initCommands();
             }
         } catch (Exception e) {
             e.printStackTrace();
