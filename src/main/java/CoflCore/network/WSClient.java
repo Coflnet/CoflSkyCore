@@ -174,9 +174,15 @@ public class WSClient extends WebSocketAdapter {
                     proxyManager.resetChromeData();
                 }
 				break;
-			case Ping:
-				// nothing to do on ping, just sent to keep connection alive
-				break;
+            case Ping:
+                // nothing to do on ping, just sent to keep connection alive
+                break;
+            case CommandUpdate:
+				CoflCore.config.knownCommands.clear();
+                CoflCore.config.knownCommands.putAll(
+					gson.fromJson(body.getData(), new TypeToken<java.util.HashMap<String, String>>(){}.getType())
+				);
+                break;
 			default:
 				break;
 		}

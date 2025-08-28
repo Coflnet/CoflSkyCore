@@ -66,8 +66,10 @@ public enum CommandType {
 	OpenUrl,
 	@SerializedName("getScoreboard")
 	GetScoreboard,
-	@SerializedName("highlightBlocks")
-	HighlightBlocks;
+    @SerializedName("highlightBlocks")
+    HighlightBlocks,
+    @SerializedName("commandUpdate")
+    CommandUpdate;
 
 	public static Map<CommandType,String> data;
 	static {
