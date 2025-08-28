@@ -28,8 +28,7 @@ public class WSClientWrapper {
     public void restartWebsocketConnection() {
     	socket.stop();
     	
-    	System.out.println("Sleeping...");
-		EventBus.getDefault().post(new OnModChatMessage("Lost connection to Coflnet, trying to reestablish the connection in 2 Seconds..."));
+    	System.out.println("Lost connection to Coflnet, trying to reestablish the connection in 2 Seconds...");
 
     	socket = new WSClient(socket.uri);
     	isRunning = false;   
