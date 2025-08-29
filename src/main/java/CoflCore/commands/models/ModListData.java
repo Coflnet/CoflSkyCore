@@ -29,5 +29,7 @@ public class ModListData {
         this.fileHashes.add(hash);
     }
 
-
+    public boolean isModPresent(String modname){
+        return this.modNames.contains(modname);
+    }
 }
