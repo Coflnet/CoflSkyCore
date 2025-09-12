@@ -20,6 +20,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.IOException;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class WSClient extends WebSocketAdapter {
@@ -183,6 +184,14 @@ public class WSClient extends WebSocketAdapter {
 					gson.fromJson(body.getData(), new TypeToken<java.util.HashMap<String, String>>(){}.getType())
 				);
 				System.out.println("Updated commands: " + CoflCore.config.knownCommands.size());
+                break;
+            case Settings:
+                // Parse the JSON string from the data field
+                String settingsJsonString = body.getData();
+                ArrayList<Settings> settings = gson.fromJson(settingsJsonString, new TypeToken<ArrayList<Settings>>(){}.getType());
+                CoflCore.config.updateSettings(settings);
+                EventBus.getDefault().post(new OnSettingsReceive(settings));
+                System.out.println("Updated settings: " + settings.size());
                 break;
 			default:
 				break;

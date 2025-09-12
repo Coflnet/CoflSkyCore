@@ -11,7 +11,7 @@ public class Settings {
     private String SettingName;
 
     @SerializedName("value")
-    private Integer SettingValue;
+    private Object SettingValue;
 
     @SerializedName("info")
     private String SettingInfo;
@@ -30,7 +30,7 @@ public class Settings {
         return SettingName;
     }
 
-    public Integer getSettingValue() {
+    public Object getSettingValue() {
         return SettingValue;
     }
 
@@ -46,11 +46,35 @@ public class Settings {
         return SettingCategory;
     }
 
+    public void setSettingKey(String settingKey) {
+        this.SettingKey = settingKey;
+    }
+
+    public void setSettingName(String settingName) {
+        this.SettingName = settingName;
+    }
+
+    public void setSettingValue(Object settingValue) {
+        this.SettingValue = settingValue;
+    }
+
+    public void setSettingInfo(String settingInfo) {
+        this.SettingInfo = settingInfo;
+    }
+
+    public void setSettingType(String settingType) {
+        this.SettingType = settingType;
+    }
+
+    public void setSettingCategory(String settingCategory) {
+        this.SettingCategory = settingCategory;
+    }
+
     public Settings() {
 
     }
 
-    public Settings(String settingKey, String settingName, Integer settingValue, String settingInfo, String settingType, String settingCategory) {
+    public Settings(String settingKey, String settingName, Object settingValue, String settingInfo, String settingType, String settingCategory) {
         this.SettingKey = settingKey;
         this.SettingName = settingName;
         this.SettingValue = settingValue;

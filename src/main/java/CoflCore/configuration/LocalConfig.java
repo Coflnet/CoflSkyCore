@@ -1,5 +1,6 @@
 package CoflCore.configuration;
 
+import CoflCore.classes.Settings;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LocalConfig {
@@ -14,14 +16,17 @@ public class LocalConfig {
     public boolean extendedtooltips;
     public GUIType purchaseOverlay;
     public HashMap<String,String> knownCommands;
+    public ArrayList<Settings> knownSettings;
 
-    public LocalConfig(boolean autoStart, boolean extendedtooltips, GUIType purchaseOverlay, HashMap<String,String> knownCommands) {
+    public LocalConfig(boolean autoStart, boolean extendedtooltips, GUIType purchaseOverlay, HashMap<String,String> knownCommands, ArrayList<Settings> knownSettings) {
         this.knownCommands = knownCommands;
+        this.knownSettings = knownSettings;
         this.autoStart = autoStart;
         this.extendedtooltips = extendedtooltips;
         this.purchaseOverlay = purchaseOverlay;
 
         initCommands();
+        initSettings();
     }
 
     public void initCommands() {
@@ -101,6 +106,109 @@ public class LocalConfig {
         }});
     }
 
+    public void initSettings() {
+        if(this.knownSettings == null)
+            this.knownSettings = new ArrayList<>();
+        if (!this.knownSettings.isEmpty()) {
+            return;
+        }
+        
+        // Add default settings based on the JSON example
+        this.knownSettings.add(new Settings("filters", "Filters", null, null, "Dictionary`2", "general"));
+        this.knownSettings.add(new Settings("lbin", "BasedOnLBin", false, "Calculate profit based on lowest bin", "Boolean", "general"));
+        this.knownSettings.add(new Settings("finders", "AllowedFinders", "FLIPPER_AND_SNIPERS", "Which algorithms are selected for price estimation", "FinderType", "general"));
+        this.knownSettings.add(new Settings("onlyBin", "OnlyBin", true, "Hide all auctions (not buy item now)", "Boolean", "general"));
+        this.knownSettings.add(new Settings("whitelistAftermain", "WhitelistAfterMain", false, "whitelisted items will only show if they also meet main filters (min profit etc)", "Boolean", "general"));
+        this.knownSettings.add(new Settings("DisableFlips", "DisableFlips", false, "Stop receiving any flips (just use other features) also stops the timer", "Boolean", "general"));
+        this.knownSettings.add(new Settings("DebugMode", "DebugMode", false, "Outputs more information to help with debugging issues", "Boolean", "general"));
+        this.knownSettings.add(new Settings("blockHighCompetition", "BlockHighCompetitionFlips", true, "Block flips that are probably not purchaseable manually", "Boolean", "general"));
+        this.knownSettings.add(new Settings("minProfit", "MinProfit", 2500000L, "Minimum profit of flips", "Int64", "general"));
+        this.knownSettings.add(new Settings("minProfitPercent", "MinProfitPercent", 20, "Minimum profit Percentage", "Int32", "general"));
+        this.knownSettings.add(new Settings("minVolume", "MinVolume", 0.1, "The minimum sales per 24 hours (has decimals)", "Double", "general"));
+        this.knownSettings.add(new Settings("maxCost", "MaxCost", 1000000000L, "Maximium cost of flips", "Int64", "general"));
+        
+        // Mod category settings
+        this.knownSettings.add(new Settings("modjustProfit", "DisplayJustProfit", true, "Display just the profit", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modsoundOnFlip", "PlaySoundOnFlip", true, "Play a sound when a flip is received", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modsoundOnOutbid", "PlaySoundOnOutbid", false, "Play a sound when a bazaar order is outbid", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modshortNumbers", "ShortNumbers", true, "Use M and k to shorten numbers", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modshortNames", "ShortNames", false, "Remove reforges etc from item names", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modblockTenSecMsg", "BlockTenSecondsMsg", false, "Hide the flips in 10 seconds message", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modformat", "Format", "(FLIP) {0}: {1}{2} {3}{4}  -> {5} Volume: {10}", "Custom flip message format", "String", "mod"));
+        this.knownSettings.add(new Settings("modblockedFormat", "BlockedFormat", null, "Custom flip message format for blocked flips", "String", "mod"));
+        this.knownSettings.add(new Settings("modchat", "Chat", false, "Is the chat enabled", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modcountdown", "DisplayTimer", true, "Show the timer", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modhideNoBestFlip", "HideNoBestFlip", false, "Hides the message from the hotkey", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modtimerX", "TimerX", 0, "<---> position in percent", "Int32", "mod"));
+        this.knownSettings.add(new Settings("modtimerY", "TimerY", 0, "up/down position in percent", "Int32", "mod"));
+        this.knownSettings.add(new Settings("modtimerSeconds", "TimerSeconds", 0, "how many seconds before the update the timer should be shown", "Int32", "mod"));
+        this.knownSettings.add(new Settings("modtimerScale", "TimerScale", 0.0f, "What scale the timer should be displayed with", "Single", "mod"));
+        this.knownSettings.add(new Settings("modtimerPrefix", "TimerPrefix", null, "Custom text to put in front of the timer", "String", "mod"));
+        this.knownSettings.add(new Settings("modtimerPrecision", "TimerPrecision", 0, "How many digits the timer should target (3)", "Int32", "mod"));
+        this.knownSettings.add(new Settings("modblockedMsg", "MinutesBetweenBlocked", (byte)0, "How many minutes to have pass before showing the x amounts of flips blocked message again, max is 127", "SByte", "mod"));
+        this.knownSettings.add(new Settings("modmaxPercentOfPurse", "MaxPercentOfPurse", (short)0, "The maximum amount of your purse you are willing to spend on a single flip", "Int16", "mod"));
+        this.knownSettings.add(new Settings("modnoBedDelay", "NoBedDelay", false, "Don't delay bed flips, send them imediately instead", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modstreamerMode", "StreamerMode", false, "Hide any personal data and reduce sounds", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modautoStartFlipper", "AutoStartFlipper", false, "Start showing flips automatically when joining skyblock", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modnormalSoldFlips", "NormalSoldFlips", false, "Don't add [SOLD] to sold flips, send them normally instead", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modtempBlacklistSpam", "TempBlacklistSpam", false, "Autmatically add items to the blacklist for 8 hours if they show up more than 5 times in 2 minutes", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("moddataOnlyMode", "AhDataOnlyMode", false, "don't show flips only add useful data", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modahListHours", "AhListTimeTarget", 0, "Ah list time target in hours", "Int32", "mod"));
+        this.knownSettings.add(new Settings("modquickSell", "QuickSell", false, "Sell items as fast as possible", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modmaxItemsInInventory", "MaxFlipItemsInInventory", 0, "The maximum amount of flips to buy and store in inventory", "Int32", "mod"));
+        this.knownSettings.add(new Settings("moddisableSpamProtection", "DisableSpamProtection", false, "Disables spam protection. By default only ~5 most valuable flips are shown that fit the settings. CAUTION: This can lead to spam flips", "Boolean", "mod"));
+        this.knownSettings.add(new Settings("modtempBlacklistThreshold", "TempBlacklistThreshold", 20, "Purchasing more than this percenatage of flips on an item will temp blacklist the item, eg if you see 8 and buy 4 the rate is 50", "Int32", "mod"));
+        
+        // Visibility category settings
+        this.knownSettings.add(new Settings("showcost", "Cost", true, "Show the cost of a flip", "Boolean", "visibility"));
+        this.knownSettings.add(new Settings("showestProfit", "EstimatedProfit", true, "Estimated profit, based on estimated sell -(ah tax)", "Boolean", "visibility"));
+        this.knownSettings.add(new Settings("showlbin", "LowestBin", false, "Show closest lowest bin (adds a few ms)", "Boolean", "visibility"));
+        this.knownSettings.add(new Settings("showslbin", "SecondLowestBin", false, "Second lowest bin (adds a few ms)", "Boolean", "visibility"));
+        this.knownSettings.add(new Settings("showmedPrice", "MedianPrice", false, "Show median/target price, equals lbin if sniper", "Boolean", "visibility"));
+        this.knownSettings.add(new Settings("showseller", "Seller", true, "Show the sellers name (adds a few ms)", "Boolean", "visibility"));
+        this.knownSettings.add(new Settings("showvolume", "Volume", true, "Show the average sell volume in 24 hours", "Boolean", "visibility"));
+        this.knownSettings.add(new Settings("showextraFields", "ExtraInfoMax", 0, "How many extra information fields to display below the flip", "Int32", "visibility"));
+        this.knownSettings.add(new Settings("showprofitPercent", "ProfitPercentage", true, "Show profit percentage", "Boolean", "visibility"));
+        this.knownSettings.add(new Settings("showprofit", "Profit", false, "Show absolute amount of profit", "Boolean", "visibility"));
+        this.knownSettings.add(new Settings("showsellerOpenBtn", "SellerOpenButton", true, "Display a button to open the sellers ah", "Boolean", "visibility"));
+        this.knownSettings.add(new Settings("showlore", "Lore", true, "Show the item description in hover text", "Boolean", "visibility"));
+        this.knownSettings.add(new Settings("showhideSold", "HideSoldAuction", false, "Prevents sold auctions from showing", "Boolean", "visibility"));
+        this.knownSettings.add(new Settings("showhideManipulated", "HideManipulated", false, "Prevents manipulated bazaar items from showing up", "Boolean", "visibility"));
+        
+        // Privacy category settings
+        this.knownSettings.add(new Settings("privacyCollectChat", "CollectChat", true, "Allow collection of limited amount of chat content to track eg. trades, drops, ah and bazaar events ", "Boolean", "privacy"));
+        this.knownSettings.add(new Settings("privacyCollectInventory", "CollectInventory", true, "Upload chest and inventory content (required for trade tracking)", "Boolean", "privacy"));
+        this.knownSettings.add(new Settings("privacyDisableTradeStoring", "DisableTradeStoring", false, "Stop trades from being stored", "Boolean", "privacy"));
+        this.knownSettings.add(new Settings("privacyDisableKuudraTracking", "DisableKuudraTracking", false, "Stop kuudra profit from being calculated", "Boolean", "privacy"));
+        this.knownSettings.add(new Settings("privacyCollectTab", "CollectTab", true, "Read and upload tab contents when joining server (detect profile type, server and island location)", "Boolean", "privacy"));
+        this.knownSettings.add(new Settings("privacyCollectScoreboard", "CollectScoreboard", true, "Read and upload scoreboard peridicly to detect purse", "Boolean", "privacy"));
+        this.knownSettings.add(new Settings("privacyCollectChatClicks", "CollectChatClicks", true, "Collect clicks on chat messages", "Boolean", "privacy"));
+        this.knownSettings.add(new Settings("privacyExtendDescriptions", "ExtendDescriptions", true, "Extend item descriptions (configure with /cofl lore)", "Boolean", "privacy"));
+        this.knownSettings.add(new Settings("privacyAutoStart", "AutoStart", true, "Autostart when joining skyblock", "Boolean", "privacy"));
+        
+        // Lore category settings
+        this.knownSettings.add(new Settings("loreHighlightFilterMatch", "HighlightFilterMatch", true, "Highlight items in ah and trade windows when matching black or whitelist filter", "Boolean", "lore"));
+        this.knownSettings.add(new Settings("loreMinProfitForHighlight", "MinProfitForHighlight", 5000000L, "What is the minimum profit for highlighting best flip on page", "Int64", "lore"));
+        this.knownSettings.add(new Settings("loreDisableHighlighting", "DisableHighlighting", false, "Disable all highlighting", "Boolean", "lore"));
+        this.knownSettings.add(new Settings("loreDisableSuggestions", "DisableSuggestions", true, "Disable all sign input suggestions", "Boolean", "lore"));
+        this.knownSettings.add(new Settings("loreDisableInfoIn", "DisableInfoIn", null, "Disable side info display in these menus, will add any menu you type into this setting, to remove prefix with `rm `, `clear` is also an option", "HashSet`1", "lore"));
+        this.knownSettings.add(new Settings("loreDisabled", "Disabled", false, "If the extra lore should be displayed or not", "Boolean", "lore"));
+        this.knownSettings.add(new Settings("loreLowballMedUndercut", "LowballMedUndercut", (byte)0, "Mow many percent to undercut the median price when lowballing, the lower of median and lbin will be used, setting this setting to 1 or more will hide the note in the lowballing info", "Byte", "lore"));
+        this.knownSettings.add(new Settings("loreLowballLbinUndercut", "LowballLbinUndercut", (byte)10, "Mow many percent to undercut the lbin price when lowballing, for items below 10m this is increased by 2% for items above 100m this is decreased by 2%, under 1 volume will also increase this by another 3%", "Byte", "lore"));
+        this.knownSettings.add(new Settings("lorePreferLbinInSuggestions", "PreferLbinInSuggestions", true, "Prefer current lbin for suggestions over stable median", "Boolean", "lore"));
+        this.knownSettings.add(new Settings("loreSuggestQuicksell", "SuggestQuicksell", false, "Suggest quicksell prices on listing", "Boolean", "lore"));
+    }
+
+    public void updateSettings(ArrayList<Settings> newSettings) {
+        if (newSettings != null) {
+            this.knownSettings = newSettings;
+        }
+    }
+
+    public ArrayList<Settings> getKnownSettings() {
+        return knownSettings;
+    }
+
     public static void saveConfig(File file, LocalConfig Config) {
         Gson gson = new Gson();
         try {
@@ -115,6 +223,6 @@ public class LocalConfig {
     }
 
     public static LocalConfig createDefaultConfig() {
-        return new LocalConfig(true, true, null, null);
+        return new LocalConfig(true, true, null, null, null);
     }
 }

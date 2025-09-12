@@ -1,11 +1,12 @@
 package CoflCore.events;
 
 import CoflCore.classes.Settings;
+import java.util.ArrayList;
 
 public class OnSettingsReceive {
-    public final Settings Settings;
+    public final ArrayList<Settings> Settings;
 
-    public OnSettingsReceive(CoflCore.classes.Settings settings) {
+    public OnSettingsReceive(ArrayList<Settings> settings) {
         Settings = settings;
     }
 }

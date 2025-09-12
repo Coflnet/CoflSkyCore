@@ -69,7 +69,9 @@ public enum CommandType {
     @SerializedName("highlightBlocks")
     HighlightBlocks,
     @SerializedName("commandUpdate")
-    CommandUpdate;
+    CommandUpdate,
+    @SerializedName("settings")
+    Settings;
 
 	public static Map<CommandType,String> data;
 	static {
