@@ -2,9 +2,15 @@ package CoflCore;
 
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import CoflCore.configuration.Config;
 import CoflCore.configuration.LocalConfig;
@@ -24,6 +30,9 @@ public class CoflCore {
     private File coflDir;
     public static LocalConfig config;
 
+    private static final long MAX_CONFIG_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+    private static final DateTimeFormatter BACKUP_FILE_SUFFIX_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
     public static final String[] webSocketURIPrefix = new String[]{
             "wss://sky.coflnet.com/modsocket",
             // fallback for old java versions not supporting new tls certificates
@@ -39,21 +48,13 @@ public class CoflCore {
     }
 
     public void init(Path configPath) {
-        String configString = null;
         Gson gson = new Gson();
         coflDir = new File(configPath.toFile(), "CoflSky");
         coflDir.mkdirs();
         SessionManager.setMainPath(Paths.get(coflDir.toString() + "/sessions"));
         configFile = new File(coflDir, "config.json");
-        try {
-            if (configFile.isFile()) {
-                configString = new String(Files.readAllBytes(Paths.get(configFile.getPath())));
-                config = gson.fromJson(configString, LocalConfig.class);
-                config.initCommands();
-                config.initSettings();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (configFile.isFile()) {
+            config = loadConfig(gson);
         }
         if (config == null) {
             config = LocalConfig.createDefaultConfig();
@@ -80,5 +81,50 @@ public class CoflCore {
         return apiKeyManager;
     }
 
+    private LocalConfig loadConfig(Gson gson) {
+        try {
+            long fileSize = Files.size(configFile.toPath());
+            if (fileSize > MAX_CONFIG_FILE_SIZE_BYTES) {
+                return handleInvalidConfig("Config file is larger than " + MAX_CONFIG_FILE_SIZE_BYTES + " bytes (" + fileSize + ")", null);
+            }
+
+            try (Reader reader = Files.newBufferedReader(configFile.toPath(), StandardCharsets.UTF_8)) {
+                LocalConfig loadedConfig = gson.fromJson(reader, LocalConfig.class);
+                if (loadedConfig != null) {
+                    loadedConfig.initCommands();
+                    loadedConfig.initSettings();
+                    return loadedConfig;
+                }
+                return handleInvalidConfig("Config file could not be parsed (null result)", null);
+            }
+        } catch (OutOfMemoryError outOfMemoryError) {
+            return handleInvalidConfig("Out of memory while loading config", outOfMemoryError);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return handleInvalidConfig("Exception while loading config: " + exception.getMessage(), exception);
+        }
+    }
+
+    private LocalConfig handleInvalidConfig(String reason, Throwable cause) {
+        System.err.println("[CoflCore] " + reason + " - resetting config to defaults.");
+        if (cause != null) {
+            cause.printStackTrace();
+        }
+
+        if (configFile != null && configFile.isFile()) {
+            Path backupPath = configFile.toPath().resolveSibling(
+                    "config.json." + BACKUP_FILE_SUFFIX_FORMATTER.format(LocalDateTime.now()) + ".bak");
+            try {
+                Files.move(configFile.toPath(), backupPath, StandardCopyOption.REPLACE_EXISTING);
+                System.err.println("[CoflCore] Previous config backed up to " + backupPath.toAbsolutePath());
+            } catch (IOException ioException) {
+                System.err.println("[CoflCore] Failed to back up invalid config: " + ioException.getMessage());
+            }
+        }
+
+        LocalConfig defaultConfig = LocalConfig.createDefaultConfig();
+        LocalConfig.saveConfig(configFile, defaultConfig);
+        return defaultConfig;
+    }
 }
 
