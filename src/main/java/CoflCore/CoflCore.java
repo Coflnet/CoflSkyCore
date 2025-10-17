@@ -48,7 +48,9 @@ public class CoflCore {
     }
 
     public void init(Path configPath) {
-        Gson gson = new Gson();
+        Gson gson = new com.google.gson.GsonBuilder()
+            .disableHtmlEscaping()  // Prevent corruption of special characters like §
+            .create();
         coflDir = new File(configPath.toFile(), "CoflSky");
         coflDir.mkdirs();
         SessionManager.setMainPath(Paths.get(coflDir.toString() + "/sessions"));

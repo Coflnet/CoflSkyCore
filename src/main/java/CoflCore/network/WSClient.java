@@ -30,15 +30,9 @@ public class WSClient extends WebSocketAdapter {
 	
 	
 	static {
-		gson = new GsonBuilder()/*.setFieldNamingStrategy(new FieldNamingStrategy() {
-			@Override
-			public String translateName(Field f) {
-				
-				String name = f.getName();
-				char firstChar = name.charAt(0);
-				return Character.toLowerCase(firstChar) + name.substring(1);
-			}
-		})*/.create();
+		gson = new GsonBuilder()
+			.disableHtmlEscaping()  // Prevent corruption of special characters like §
+			.create();
 	}
 	public URI uri;
 	private WebSocket socket;
@@ -180,9 +174,23 @@ public class WSClient extends WebSocketAdapter {
                 break;
             case CommandUpdate:
 				CoflCore.config.knownCommands.clear();
-                CoflCore.config.knownCommands.putAll(
-					gson.fromJson(body.getData(), new TypeToken<java.util.HashMap<String, String>>(){}.getType())
+                java.util.HashMap<String, String> receivedCommands = gson.fromJson(
+					body.getData(), 
+					new TypeToken<java.util.HashMap<String, String>>(){}.getType()
 				);
+				// Sanitize and limit command descriptions to prevent config file corruption
+				if (receivedCommands != null) {
+					for (java.util.Map.Entry<String, String> entry : receivedCommands.entrySet()) {
+						String description = entry.getValue();
+						if (description != null && description.length() > 200) {
+							// Truncate to 200 characters max
+							description = description.substring(0, 200);
+							System.err.println("Warning: Truncated description for command '" + entry.getKey() + 
+								"' from " + entry.getValue().length() + " to 200 characters");
+						}
+						CoflCore.config.knownCommands.put(entry.getKey(), description);
+					}
+				}
 				System.out.println("Updated commands: " + CoflCore.config.knownCommands.size());
                 break;
             case Settings:

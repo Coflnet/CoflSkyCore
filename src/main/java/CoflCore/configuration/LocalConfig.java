@@ -32,6 +32,21 @@ public class LocalConfig {
     public void initCommands() {
         if(this.knownCommands == null)
             this.knownCommands = new HashMap<>();
+        
+        // Sanitize existing commands - remove any with corrupted/oversized descriptions
+        if (!this.knownCommands.isEmpty()) {
+            java.util.Iterator<java.util.Map.Entry<String, String>> iterator = this.knownCommands.entrySet().iterator();
+            while (iterator.hasNext()) {
+                java.util.Map.Entry<String, String> entry = iterator.next();
+                String description = entry.getValue();
+                if (description != null && description.length() > 200) {
+                    System.err.println("Warning: Removing corrupted command '" + entry.getKey() + 
+                        "' with description length " + description.length() + " (max 200)");
+                    iterator.remove();
+                }
+            }
+        }
+        
         if (!this.knownCommands.isEmpty()) {
             return;
         }
@@ -210,7 +225,9 @@ public class LocalConfig {
     }
 
     public static void saveConfig(File file, LocalConfig Config) {
-        Gson gson = new Gson();
+        Gson gson = new com.google.gson.GsonBuilder()
+            .disableHtmlEscaping()  // Prevent corruption of special characters like §
+            .create();
         try {
             if (!file.isFile()) {
                 file.createNewFile();
