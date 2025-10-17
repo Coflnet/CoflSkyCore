@@ -11,6 +11,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.IOException;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 
 public class WSClientWrapper {
@@ -19,10 +20,12 @@ public class WSClientWrapper {
     public boolean isRunning;
     
     private String[] uris;
+    private String connectionId;
 
     
     public WSClientWrapper(String[] uris) {
     	this.uris = uris;
+    	this.connectionId = UUID.randomUUID().toString();
     }
     
     public void restartWebsocketConnection() {
@@ -48,6 +51,9 @@ public class WSClientWrapper {
     public boolean startConnection(String username) {
     	if(isRunning)
     		return false;
+    	
+    	// Generate new connection ID for user-initiated start
+    	this.connectionId = UUID.randomUUID().toString();
     	
     	for(String s : uris) {
     		System.out.println("Trying connection with uri=" + s);
@@ -79,7 +85,8 @@ public class WSClientWrapper {
 			SessionManager.UpdateCoflSessions();
 			String coflSessionID = SessionManager.GetCoflSession(username).SessionUUID;
 			
-			uri += "&SId=" + coflSessionID;	
+			uri += "&SId=" + coflSessionID;
+			uri += "&cid=" + this.connectionId;	
 
 			if(socket != null)
 				socket.stop();
