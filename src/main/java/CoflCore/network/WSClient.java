@@ -10,7 +10,6 @@ import CoflCore.configuration.Configuration;
 import CoflCore.configuration.ConfigurationManager;
 import CoflCore.configuration.LocalConfig;
 import CoflCore.events.*;
-import CoflCore.proxy.ProxyManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -25,9 +24,7 @@ import java.util.List;
 
 public class WSClient extends WebSocketAdapter {
 
-	public static Gson gson;
-	private static final ProxyManager proxyManager = new ProxyManager();
-	
+	public static Gson gson;	
 	
 	static {
 		gson = new GsonBuilder()
@@ -159,15 +156,8 @@ public class WSClient extends WebSocketAdapter {
 				}).getData());
                 break;
 			case ProxyRequest:
-				ProxyRequest[] proxyRequests = body.GetAs(new TypeToken<ProxyRequest[]>() {
-				}).getData();
-
-				for (ProxyRequest req : proxyRequests) {
-					proxyManager.handleRequestAsync(req);
-				}
-                if(proxyRequests.length == 0){
-                    proxyManager.resetChromeData();
-                }
+				EventBus.getDefault().post(new OnWriteToChatReceive(
+					new ChatMessageData("This feature is only supported in releases from GitHub.", "https://github.com/Coflnet/Skyblockmod/releases", "click to open github")));
 				break;
             case Ping:
                 // nothing to do on ping, just sent to keep connection alive
