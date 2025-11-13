@@ -42,18 +42,14 @@ public class WSClient extends WebSocketAdapter {
 	}
 	
 	public void start() throws IOException, WebSocketException, NoSuchAlgorithmException {
-		WebSocketFactory factory = new WebSocketFactory();
-		
-		javax.net.ssl.SSLContext context = NetworkUtils.getSSLContext();
-		if (context != null) {
-			factory.setSSLContext(context);
-			factory.setVerifyHostname(true);
-			System.out.println("WebSocket using proper SSL certificate validation");
-		} else {
-			System.err.println("WARNING: SSL context not available, falling back to insecure mode!");
-			factory.setVerifyHostname(false);
-			factory.setSSLContext(NaiveSSLContext.getInstance("TLSv1.2"));
+		if (!NetworkUtils.isSSLInitialized()) {
+			throw new IOException("SSL keystore failed to load. Cannot establish WebSocket connection.");
 		}
+		
+		WebSocketFactory factory = new WebSocketFactory();
+		javax.net.ssl.SSLContext context = NetworkUtils.getSSLContext();
+		factory.setSSLContext(context);
+		factory.setVerifyHostname(true);
 		
 		factory.setConnectionTimeout(10*1000);
 		this.socket = factory.createSocket(uri);

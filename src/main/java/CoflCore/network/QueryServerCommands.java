@@ -59,6 +59,11 @@ public class QueryServerCommands {
 		
 	}
 	private static String GetRequest(String uri) {
+		if (!NetworkUtils.isSSLInitialized()) {
+			System.err.println("SSL keystore not initialized. Cannot make request to " + uri);
+			return null;
+		}
+		
 		try {
 			URL url = new URL(uri);
 			HttpsURLConnection con = NetworkUtils.setupConnection(url);
@@ -91,6 +96,11 @@ public class QueryServerCommands {
 		return null;
 	}
 	public static String PostRequest(String uri,  String data, String username) {
+		if (!NetworkUtils.isSSLInitialized()) {
+			System.err.println("SSL keystore not initialized. Cannot make request to " + uri);
+			return null;
+		}
+		
 		try {
 			URL url = new URL(uri);
 			HttpsURLConnection con = NetworkUtils.setupConnection(url);
