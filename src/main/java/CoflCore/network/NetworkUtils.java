@@ -33,7 +33,7 @@ public class NetworkUtils {
             byte[] decodedKeystore = Base64.getDecoder().decode(EMBEDDED_KEYSTORE_B64);
             ByteArrayInputStream keystoreStream = new ByteArrayInputStream(decodedKeystore);
 
-            KeyStore keyStore = KeyStore.getInstance("JKS");
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
             keyStore.load(keystoreStream, "changeit".toCharArray());
 
             TrustManagerFactory tmf = TrustManagerFactory.getInstance("PKIX");
