@@ -5,8 +5,8 @@ import CoflCore.misc.SessionManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -59,18 +59,11 @@ public class QueryServerCommands {
 		
 	}
 	private static String GetRequest(String uri) {
-		
 		try {
-			System.out.println("Get request");
 			URL url = new URL(uri);
-	    	HttpURLConnection con;
-			con = (HttpURLConnection) url.openConnection();
+			HttpsURLConnection con = NetworkUtils.setupConnection(url);
 			con.setRequestMethod("GET");
-			
-			//con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 			con.setRequestProperty("Accept", "application/json");
-			con.setRequestProperty("User-Agent", "CoflMod");
-			//con.setDoInput(true);
 			con.setDoInput(true);
 
 			// ...
@@ -80,20 +73,18 @@ public class QueryServerCommands {
 			os.write(bytes);
 			os.close();
 			*/
-			System.out.println("InputStream");
-			 InputStream in = new BufferedInputStream(con.getInputStream());
-			 ByteArrayOutputStream result = new ByteArrayOutputStream();
-			 byte[] buffer = new byte[1024];
-			 for (int length; (length = in.read(buffer)) != -1; ) {
-			     result.write(buffer, 0, length);
-			 }
-			 // StandardCharsets.UTF_8.name() > JDK 7
-			 String resString =  result.toString("UTF-8");
-			 
-			 System.out.println("Result= " + resString);
-			 return resString;
+			InputStream in = new BufferedInputStream(con.getInputStream());
+			ByteArrayOutputStream result = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			for (int length; (length = in.read(buffer)) != -1; ) {
+			    result.write(buffer, 0, length);
+			}
+			String resString = result.toString("UTF-8");
+			return resString;
+		} catch (javax.net.ssl.SSLException sslEx) {
+			System.err.println("SSL validation failed for " + uri);
+			sslEx.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -102,13 +93,12 @@ public class QueryServerCommands {
 	public static String PostRequest(String uri,  String data, String username) {
 		try {
 			URL url = new URL(uri);
-			HttpURLConnection con;
-			con = (HttpURLConnection) url.openConnection();
+			HttpsURLConnection con = NetworkUtils.setupConnection(url);
 			con.setRequestMethod("POST");
 
 			con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 			con.setRequestProperty("Accept", "application/json");
-			con.setRequestProperty("User-Agent", "CoflMod");
+			// User-Agent is already set by setupConnection
 			con.setRequestProperty("conId", SessionManager.GetCoflSession(username).SessionUUID);
 			con.setRequestProperty("uuid",username);
 			con.setDoInput(true);
@@ -130,12 +120,12 @@ public class QueryServerCommands {
 			for (int length; (length = in.read(buffer)) != -1; ) {
 				result.write(buffer, 0, length);
 			}
-			// StandardCharsets.UTF_8.name() > JDK 7
 			String resString =  result.toString("UTF-8");
-
 			return resString;
+		} catch (javax.net.ssl.SSLException sslEx) {
+			System.err.println("SSL validation failed for " + uri);
+			sslEx.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

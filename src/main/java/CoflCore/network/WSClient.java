@@ -44,27 +44,17 @@ public class WSClient extends WebSocketAdapter {
 	public void start() throws IOException, WebSocketException, NoSuchAlgorithmException {
 		WebSocketFactory factory = new WebSocketFactory();
 		
-		/*// Create a custom SSL context.
-		SSLContext context = NaiveSSLContext.getInstance("TLS");
-
-		// Set the custom SSL context.
-		factory.setSSLContext(context);
-
-		// Disable manual hostname verification for NaiveSSLContext.
-		//
-		// Manual hostname verification has been enabled since the
-		// version 2.1. Because the verification is executed manually
-		// after Socket.connect(SocketAddress, int) succeeds, the
-		// hostname verification is always executed even if you has
-		// passed an SSLContext which naively accepts any server
-		// certificate. However, this behavior is not desirable in
-		// some cases and you may want to disable the hostname
-		// verification. You can disable the hostname verification
-		// by calling WebSocketFactory.setVerifyHostname(false).
-		factory.setVerifyHostname(false);
-		factory.*/
-		factory.setVerifyHostname(false);
-		factory.setSSLContext(NaiveSSLContext.getInstance("TLSv1.2"));
+		javax.net.ssl.SSLContext context = NetworkUtils.getSSLContext();
+		if (context != null) {
+			factory.setSSLContext(context);
+			factory.setVerifyHostname(true);
+			System.out.println("WebSocket using proper SSL certificate validation");
+		} else {
+			System.err.println("WARNING: SSL context not available, falling back to insecure mode!");
+			factory.setVerifyHostname(false);
+			factory.setSSLContext(NaiveSSLContext.getInstance("TLSv1.2"));
+		}
+		
 		factory.setConnectionTimeout(10*1000);
 		this.socket = factory.createSocket(uri);
 		this.socket.addListener(this);
@@ -157,7 +147,7 @@ public class WSClient extends WebSocketAdapter {
                 break;
 			case ProxyRequest:
 				EventBus.getDefault().post(new OnWriteToChatReceive(
-					new ChatMessageData("This feature is only supported in releases from GitHub.", "https://github.com/Coflnet/Skyblockmod/releases", "click to open github")));
+					new ChatMessageData("This feature is only supported in releases from GitHub up to 1.7.7.", "https://github.com/Coflnet/Skyblockmod/releases", "click to open github")));
 				break;
             case Ping:
                 // nothing to do on ping, just sent to keep connection alive

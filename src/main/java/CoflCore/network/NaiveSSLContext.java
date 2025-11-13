@@ -29,6 +29,12 @@ import java.security.cert.X509Certificate;
 /**
  * A factory class which creates an {@link SSLContext} that
  * naively accepts all certificates without verification.
+ * 
+ * WARNING: This class is INSECURE and should only be used as a fallback.
+ * The primary SSL validation is now done through NetworkUtils which uses
+ * a proper keystore with modern root CA certificates.
+ * 
+ * This class is kept only as an emergency fallback if the keystore fails to load.
  *
  * <pre>
  * // Create an SSL context that naively accepts all certificates.
@@ -42,7 +48,9 @@ import java.security.cert.X509Certificate;
  * </pre>
  *
  * @author Takahiko Kawasaki
+ * @deprecated Use NetworkUtils.getSSLContext() instead for proper certificate validation
  */
+@Deprecated
 public class NaiveSSLContext
 {
     private NaiveSSLContext()
