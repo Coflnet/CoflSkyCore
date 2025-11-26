@@ -5,7 +5,7 @@ import CoflCore.misc.SessionManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import javax.net.ssl.HttpsURLConnection;
+import java.net.HttpURLConnection;
 import java.io.*;
 import java.net.URL;
 import java.util.Arrays;
@@ -66,7 +66,7 @@ public class QueryServerCommands {
 		
 		try {
 			URL url = new URL(uri);
-			HttpsURLConnection con = NetworkUtils.setupConnection(url);
+			HttpURLConnection con = NetworkUtils.setupConnection(url);
 			con.setRequestMethod("GET");
 			con.setRequestProperty("Accept", "application/json");
 			con.setDoInput(true);
@@ -103,7 +103,7 @@ public class QueryServerCommands {
 		
 		try {
 			URL url = new URL(uri);
-			HttpsURLConnection con = NetworkUtils.setupConnection(url);
+			HttpURLConnection con = NetworkUtils.setupConnection(url);
 			con.setRequestMethod("POST");
 
 			con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");

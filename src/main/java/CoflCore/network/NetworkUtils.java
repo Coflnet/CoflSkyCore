@@ -4,6 +4,7 @@ import javax.net.ssl.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.security.KeyManagementException;
@@ -90,11 +91,26 @@ public class NetworkUtils {
         return sslSocketFactory;
     }
     
-    public static HttpsURLConnection setupConnection(URL url) throws IOException {
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+    public static HttpURLConnection setupConnection(URL url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         
-        if (sslSocketFactory != null) {
-            connection.setSSLSocketFactory(sslSocketFactory);
+        // Apply SSL settings only for HTTPS connections
+        if (connection instanceof HttpsURLConnection) {
+            HttpsURLConnection httpsConnection = (HttpsURLConnection) connection;
+            String host = url.getHost();
+            
+            if (isLocalhost(host)) {
+                // Use insecure SSL for localhost development
+                if (insecureSSLSocketFactory != null) {
+                    httpsConnection.setSSLSocketFactory(insecureSSLSocketFactory);
+                    httpsConnection.setHostnameVerifier((hostname, session) -> true);
+                }
+            } else {
+                // Use secure SSL for remote connections
+                if (sslSocketFactory != null) {
+                    httpsConnection.setSSLSocketFactory(sslSocketFactory);
+                }
+            }
         }
         
         connection.setRequestProperty("User-Agent", "SkyCoflMod/1.7.8");
