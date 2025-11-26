@@ -42,22 +42,30 @@ public class WSClient extends WebSocketAdapter {
 	}
 	
 	public void start() throws IOException, WebSocketException, NoSuchAlgorithmException {
-		if (!NetworkUtils.isSSLInitialized()) {
-			throw new IOException("SSL keystore failed to load. Cannot establish WebSocket connection.");
-		}
-		
 		WebSocketFactory factory = new WebSocketFactory();
+		String scheme = uri.getScheme();
 		String host = uri.getHost();
-		boolean allowInsecure = NetworkUtils.allowInsecureConnection(host);
+		boolean isSecure = "wss".equalsIgnoreCase(scheme);
 		
-		if (allowInsecure) {
-			// Use insecure SSL context for localhost/coflnet.com connections
-			System.out.println("Using insecure SSL context for connection: " + host);
-			factory.setSSLContext(NetworkUtils.getInsecureSSLContext());
-			factory.setVerifyHostname(false);
+		// Only configure SSL for secure WebSocket connections
+		if (isSecure) {
+			if (!NetworkUtils.isSSLInitialized()) {
+				throw new IOException("SSL keystore failed to load. Cannot establish WebSocket connection.");
+			}
+			
+			boolean allowInsecure = NetworkUtils.allowInsecureConnection(host);
+			
+			if (allowInsecure) {
+				// Use insecure SSL context for localhost/coflnet.com connections
+				System.out.println("Using insecure SSL context for connection: " + host);
+				factory.setSSLContext(NetworkUtils.getInsecureSSLContext());
+				factory.setVerifyHostname(false);
+			} else {
+				factory.setSSLContext(NetworkUtils.getSSLContext());
+				factory.setVerifyHostname(true);
+			}
 		} else {
-			factory.setSSLContext(NetworkUtils.getSSLContext());
-			factory.setVerifyHostname(true);
+			System.out.println("Using plain WebSocket connection (no SSL) to: " + host);
 		}
 		
 		factory.setConnectionTimeout(10*1000);
