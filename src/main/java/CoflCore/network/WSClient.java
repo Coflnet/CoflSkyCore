@@ -47,9 +47,18 @@ public class WSClient extends WebSocketAdapter {
 		}
 		
 		WebSocketFactory factory = new WebSocketFactory();
-		javax.net.ssl.SSLContext context = NetworkUtils.getSSLContext();
-		factory.setSSLContext(context);
-		factory.setVerifyHostname(true);
+		String host = uri.getHost();
+		boolean isLocalhost = NetworkUtils.isLocalhost(host);
+		
+		if (isLocalhost) {
+			// Use insecure SSL context for localhost development
+			System.out.println("Using insecure SSL context for localhost connection: " + host);
+			factory.setSSLContext(NetworkUtils.getInsecureSSLContext());
+			factory.setVerifyHostname(false);
+		} else {
+			factory.setSSLContext(NetworkUtils.getSSLContext());
+			factory.setVerifyHostname(true);
+		}
 		
 		factory.setConnectionTimeout(10*1000);
 		this.socket = factory.createSocket(uri);

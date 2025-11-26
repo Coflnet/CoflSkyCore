@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.cert.X509Certificate;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -37,6 +38,8 @@ public class NetworkUtils {
     
     private static SSLContext sslContext;
     private static SSLSocketFactory sslSocketFactory;
+    private static SSLContext insecureSSLContext;
+    private static SSLSocketFactory insecureSSLSocketFactory;
     
     static {
         try {
@@ -59,6 +62,20 @@ public class NetworkUtils {
             sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, tmf.getTrustManagers(), new java.security.SecureRandom());
             sslSocketFactory = sslContext.getSocketFactory();
+            
+            // Create insecure SSL context for localhost development
+            TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return new java.security.cert.X509Certificate[0];
+                    }
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+                }
+            };
+            insecureSSLContext = SSLContext.getInstance("TLS");
+            insecureSSLContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            insecureSSLSocketFactory = insecureSSLContext.getSocketFactory();
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | KeyManagementException | IOException e) {
             System.err.println("Failed to initialize SSL context: " + e.getMessage());
             e.printStackTrace();
@@ -89,5 +106,33 @@ public class NetworkUtils {
     
     public static boolean isSSLInitialized() {
         return sslContext != null && sslSocketFactory != null;
+    }
+    
+    /**
+     * Get insecure SSL context for localhost development connections.
+     * WARNING: Only use this for localhost connections during development!
+     */
+    public static SSLContext getInsecureSSLContext() {
+        return insecureSSLContext;
+    }
+    
+    /**
+     * Get insecure SSL socket factory for localhost development connections.
+     * WARNING: Only use this for localhost connections during development!
+     */
+    public static SSLSocketFactory getInsecureSSLSocketFactory() {
+        return insecureSSLSocketFactory;
+    }
+    
+    /**
+     * Check if the given host is localhost.
+     */
+    public static boolean isLocalhost(String host) {
+        if (host == null) return false;
+        return host.equals("localhost") || 
+               host.equals("127.0.0.1") || 
+               host.equals("[::1]") ||
+               host.startsWith("192.168.") ||
+               host.startsWith("10.");
     }
 }
