@@ -152,7 +152,7 @@ public class WSClient extends WebSocketAdapter {
                 break;
 			case ProxyRequest:
 				EventBus.getDefault().post(new OnWriteToChatReceive(
-					new ChatMessageData("This feature is only supported in releases from GitHub up to 1.7.7.", "https://github.com/Coflnet/Skyblockmod/releases", "click to open github")));
+					new ChatMessageData("This feature is no longer supported.", null, null)));
 				break;
             case Ping:
                 // nothing to do on ping, just sent to keep connection alive
