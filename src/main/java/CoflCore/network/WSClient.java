@@ -48,11 +48,11 @@ public class WSClient extends WebSocketAdapter {
 		
 		WebSocketFactory factory = new WebSocketFactory();
 		String host = uri.getHost();
-		boolean isLocalhost = NetworkUtils.isLocalhost(host);
+		boolean allowInsecure = NetworkUtils.allowInsecureConnection(host);
 		
-		if (isLocalhost) {
-			// Use insecure SSL context for localhost development
-			System.out.println("Using insecure SSL context for localhost connection: " + host);
+		if (allowInsecure) {
+			// Use insecure SSL context for localhost/coflnet.com connections
+			System.out.println("Using insecure SSL context for connection: " + host);
 			factory.setSSLContext(NetworkUtils.getInsecureSSLContext());
 			factory.setVerifyHostname(false);
 		} else {

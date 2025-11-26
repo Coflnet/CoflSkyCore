@@ -99,8 +99,8 @@ public class NetworkUtils {
             HttpsURLConnection httpsConnection = (HttpsURLConnection) connection;
             String host = url.getHost();
             
-            if (isLocalhost(host)) {
-                // Use insecure SSL for localhost development
+            if (allowInsecureConnection(host)) {
+                // Use insecure SSL for localhost/coflnet.com connections
                 if (insecureSSLSocketFactory != null) {
                     httpsConnection.setSSLSocketFactory(insecureSSLSocketFactory);
                     httpsConnection.setHostnameVerifier((hostname, session) -> true);
@@ -141,14 +141,17 @@ public class NetworkUtils {
     }
     
     /**
-     * Check if the given host is localhost.
+     * Check if the given host allows insecure connections.
+     * This includes localhost addresses and coflnet.com subdomains (for direct connections).
      */
-    public static boolean isLocalhost(String host) {
+    public static boolean allowInsecureConnection(String host) {
         if (host == null) return false;
         return host.equals("localhost") || 
                host.equals("127.0.0.1") || 
                host.equals("[::1]") ||
                host.startsWith("192.168.") ||
-               host.startsWith("10.");
+               host.startsWith("10.") ||
+               host.endsWith(".coflnet.com") ||
+               host.equals("coflnet.com");
     }
 }
