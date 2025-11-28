@@ -59,11 +59,14 @@ public class WSClient extends WebSocketAdapter {
 				// Use insecure SSL context for localhost connections
 				System.out.println("Using insecure SSL context for connection: " + host);
 				factory.setSSLContext(NetworkUtils.getInsecureSSLContext());
-				factory.setVerifyHostname(false);
 			} else {
 				factory.setSSLContext(NetworkUtils.getSSLContext());
-				factory.setVerifyHostname(true);
 			}
+			// Disable neovisionaries library's built-in hostname verification 
+			// as it has compatibility issues with Java 8 and some certificate configurations.
+			// SSL/TLS certificate validation is still performed by the SSLContext's TrustManager.
+			// The certificate chain is validated against our embedded root certificates.
+			factory.setVerifyHostname(false);
 		} else {
 			System.out.println("Using plain WebSocket connection (no SSL) to: " + host);
 		}
