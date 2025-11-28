@@ -150,8 +150,6 @@ public class NetworkUtils {
                host.equals("127.0.0.1") || 
                host.equals("[::1]") ||
                host.startsWith("192.168.") ||
-               host.startsWith("10.") ||
-               host.endsWith(".coflnet.com") ||
-               host.equals("coflnet.com");
+               host.startsWith("10.");
     }
 }

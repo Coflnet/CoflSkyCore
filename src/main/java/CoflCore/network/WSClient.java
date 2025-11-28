@@ -56,7 +56,7 @@ public class WSClient extends WebSocketAdapter {
 			boolean allowInsecure = NetworkUtils.allowInsecureConnection(host);
 			
 			if (allowInsecure) {
-				// Use insecure SSL context for localhost/coflnet.com connections
+				// Use insecure SSL context for localhost connections
 				System.out.println("Using insecure SSL context for connection: " + host);
 				factory.setSSLContext(NetworkUtils.getInsecureSSLContext());
 				factory.setVerifyHostname(false);
