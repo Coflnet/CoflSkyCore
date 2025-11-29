@@ -64,6 +64,8 @@ public class WSClient extends WebSocketAdapter {
 			} else {
 				System.out.println("[WSClient] Using secure SSL context for connection: " + host);
 				factory.setSSLContext(NetworkUtils.getSSLContext());
+				// IMPORTANT: Must also set SSLSocketFactory for neovisionaries to use our custom trust manager
+				// and SNI-enabled socket factory. Without this, the library may use default certificates.
 				factory.setSSLSocketFactory(NetworkUtils.getSSLSocketFactory());
 			}
 			// Disable neovisionaries library's built-in hostname verification 

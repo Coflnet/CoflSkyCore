@@ -221,6 +221,7 @@ public class NetworkUtils {
         
         /**
          * Enable SNI extension and configure TLS parameters for the socket.
+         * Also ensures TLS 1.2 is enabled and proper cipher suites are available.
          */
         private void enableSNI(SSLSocket socket, String hostname) {
             if (hostname == null || hostname.isEmpty()) {
@@ -228,7 +229,64 @@ public class NetworkUtils {
             }
             
             try {
-                // Get current SSL parameters
+                // Explicitly enable TLS 1.2 - very old Java 8 versions may not have it enabled by default
+                String[] supportedProtocols = socket.getSupportedProtocols();
+                List<String> enabledProtocols = new ArrayList<>();
+                for (String protocol : supportedProtocols) {
+                    if (protocol.equals("TLSv1.2") || protocol.equals("TLSv1.1") || protocol.equals("TLSv1")) {
+                        enabledProtocols.add(protocol);
+                    }
+                }
+                if (!enabledProtocols.isEmpty()) {
+                    socket.setEnabledProtocols(enabledProtocols.toArray(new String[0]));
+                }
+                
+                // Enable additional cipher suites that may be needed for ECDSA certificates
+                // Some Java 8 versions don't enable all EC cipher suites by default
+                String[] supportedCiphers = socket.getSupportedCipherSuites();
+                List<String> enabledCiphers = new ArrayList<>();
+                
+                // Prioritize strong modern ciphers with EC support
+                String[] preferredCiphers = {
+                    "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                    "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                    "TLS_RSA_WITH_AES_128_GCM_SHA256",
+                    "TLS_RSA_WITH_AES_256_GCM_SHA256",
+                    "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+                    "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+                    "TLS_RSA_WITH_AES_128_CBC_SHA256"
+                };
+                
+                // Add preferred ciphers first (if supported)
+                for (String preferredCipher : preferredCiphers) {
+                    for (String supportedCipher : supportedCiphers) {
+                        if (supportedCipher.equals(preferredCipher)) {
+                            enabledCiphers.add(preferredCipher);
+                            break;
+                        }
+                    }
+                }
+                
+                // Add remaining supported ciphers (excluding weak ones)
+                for (String cipher : supportedCiphers) {
+                    if (!enabledCiphers.contains(cipher) && 
+                        !cipher.contains("_NULL_") && 
+                        !cipher.contains("_anon_") && 
+                        !cipher.contains("_EXPORT_") &&
+                        !cipher.contains("_DES_") &&
+                        !cipher.contains("_RC4_") &&
+                        !cipher.contains("_MD5")) {
+                        enabledCiphers.add(cipher);
+                    }
+                }
+                
+                if (!enabledCiphers.isEmpty()) {
+                    socket.setEnabledCipherSuites(enabledCiphers.toArray(new String[0]));
+                }
+                
+                // Get current SSL parameters and set SNI
                 SSLParameters params = socket.getSSLParameters();
                 
                 // Create SNI host name using reflection to support Java 8
@@ -240,7 +298,8 @@ public class NetworkUtils {
                 // Apply the parameters back to the socket
                 socket.setSSLParameters(params);
                 
-                System.out.println("[NetworkUtils] SNI enabled for host: " + hostname);
+                System.out.println("[NetworkUtils] SNI enabled for host: " + hostname + 
+                    ", protocols: " + enabledProtocols.size() + ", ciphers: " + enabledCiphers.size());
             } catch (Exception e) {
                 System.err.println("[NetworkUtils] Failed to enable SNI for " + hostname + ": " + e.getMessage());
             }
