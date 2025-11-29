@@ -5,6 +5,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.security.KeyManagementException;
@@ -13,7 +15,10 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 
 /**
  * Utility for HTTPS connections with proper SSL/TLS certificate validation.
@@ -60,9 +65,13 @@ public class NetworkUtils {
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(keyStore);
 
-            sslContext = SSLContext.getInstance("TLS");
+            // Use TLSv1.2 explicitly for Java 8 compatibility - required by modern servers
+            sslContext = SSLContext.getInstance("TLSv1.2");
             sslContext.init(null, tmf.getTrustManagers(), new java.security.SecureRandom());
-            sslSocketFactory = sslContext.getSocketFactory();
+            // Wrap the socket factory to enable SNI for Java 8 compatibility
+            sslSocketFactory = new SNISocketFactory(sslContext.getSocketFactory());
+            
+            System.out.println("[NetworkUtils] SSL context initialized successfully with " + keyStore.size() + " certificates");
             
             // Create insecure SSL context for localhost development
             TrustManager[] trustAllCerts = new TrustManager[] {
@@ -74,9 +83,9 @@ public class NetworkUtils {
                     public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
                 }
             };
-            insecureSSLContext = SSLContext.getInstance("TLS");
+            insecureSSLContext = SSLContext.getInstance("TLSv1.2");
             insecureSSLContext.init(null, trustAllCerts, new java.security.SecureRandom());
-            insecureSSLSocketFactory = insecureSSLContext.getSocketFactory();
+            insecureSSLSocketFactory = new SNISocketFactory(insecureSSLContext.getSocketFactory());
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | KeyManagementException | IOException e) {
             System.err.println("Failed to initialize SSL context: " + e.getMessage());
             e.printStackTrace();
@@ -151,5 +160,90 @@ public class NetworkUtils {
                host.equals("[::1]") ||
                host.startsWith("192.168.") ||
                host.startsWith("10.");
+    }
+    
+    /**
+     * Custom SSLSocketFactory that enables SNI (Server Name Indication) for Java 8 compatibility.
+     * This is required for connecting to servers behind Cloudflare and other CDNs that use SNI
+     * to determine which certificate to present.
+     */
+    private static class SNISocketFactory extends SSLSocketFactory {
+        private final SSLSocketFactory delegate;
+        
+        public SNISocketFactory(SSLSocketFactory delegate) {
+            this.delegate = delegate;
+        }
+        
+        @Override
+        public String[] getDefaultCipherSuites() {
+            return delegate.getDefaultCipherSuites();
+        }
+        
+        @Override
+        public String[] getSupportedCipherSuites() {
+            return delegate.getSupportedCipherSuites();
+        }
+        
+        @Override
+        public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(s, host, port, autoClose);
+            enableSNI(socket, host);
+            return socket;
+        }
+        
+        @Override
+        public Socket createSocket(String host, int port) throws IOException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(host, port);
+            enableSNI(socket, host);
+            return socket;
+        }
+        
+        @Override
+        public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(host, port, localHost, localPort);
+            enableSNI(socket, host);
+            return socket;
+        }
+        
+        @Override
+        public Socket createSocket(InetAddress host, int port) throws IOException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(host, port);
+            // Cannot enable SNI without hostname
+            return socket;
+        }
+        
+        @Override
+        public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(address, port, localAddress, localPort);
+            // Cannot enable SNI without hostname
+            return socket;
+        }
+        
+        /**
+         * Enable SNI extension and configure TLS parameters for the socket.
+         */
+        private void enableSNI(SSLSocket socket, String hostname) {
+            if (hostname == null || hostname.isEmpty()) {
+                return;
+            }
+            
+            try {
+                // Get current SSL parameters
+                SSLParameters params = socket.getSSLParameters();
+                
+                // Create SNI host name using reflection to support Java 8
+                // SNIHostName was added in Java 8, so we use it directly
+                List<SNIServerName> serverNames = new ArrayList<>();
+                serverNames.add(new SNIHostName(hostname));
+                params.setServerNames(serverNames);
+                
+                // Apply the parameters back to the socket
+                socket.setSSLParameters(params);
+                
+                System.out.println("[NetworkUtils] SNI enabled for host: " + hostname);
+            } catch (Exception e) {
+                System.err.println("[NetworkUtils] Failed to enable SNI for " + hostname + ": " + e.getMessage());
+            }
+        }
     }
 }

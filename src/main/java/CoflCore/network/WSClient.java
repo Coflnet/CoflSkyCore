@@ -50,6 +50,7 @@ public class WSClient extends WebSocketAdapter {
 		// Only configure SSL for secure WebSocket connections
 		if (isSecure) {
 			if (!NetworkUtils.isSSLInitialized()) {
+				System.out.println("[WSClient] SSL not initialized, cannot connect securely to: " + host);
 				throw new IOException("SSL keystore failed to load. Cannot establish WebSocket connection.");
 			}
 			
@@ -57,10 +58,13 @@ public class WSClient extends WebSocketAdapter {
 			
 			if (allowInsecure) {
 				// Use insecure SSL context for localhost connections
-				System.out.println("Using insecure SSL context for connection: " + host);
+				System.out.println("[WSClient] Using insecure SSL context for connection: " + host);
 				factory.setSSLContext(NetworkUtils.getInsecureSSLContext());
+				factory.setSSLSocketFactory(NetworkUtils.getInsecureSSLSocketFactory());
 			} else {
+				System.out.println("[WSClient] Using secure SSL context for connection: " + host);
 				factory.setSSLContext(NetworkUtils.getSSLContext());
+				factory.setSSLSocketFactory(NetworkUtils.getSSLSocketFactory());
 			}
 			// Disable neovisionaries library's built-in hostname verification 
 			// as it has compatibility issues with Java 8 and some certificate configurations.
@@ -68,7 +72,7 @@ public class WSClient extends WebSocketAdapter {
 			// The certificate chain is validated against our embedded root certificates.
 			factory.setVerifyHostname(false);
 		} else {
-			System.out.println("Using plain WebSocket connection (no SSL) to: " + host);
+			System.out.println("[WSClient] Using plain WebSocket connection (no SSL) to: " + host);
 		}
 		
 		factory.setConnectionTimeout(10*1000);
