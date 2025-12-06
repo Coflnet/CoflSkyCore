@@ -8,6 +8,7 @@ import CoflCore.misc.SessionManager;
 import com.neovisionaries.ws.client.WebSocketException;
 import org.greenrobot.eventbus.EventBus;
 
+import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
@@ -21,6 +22,7 @@ public class WSClientWrapper {
     
     private String[] uris;
     private String connectionId;
+    private boolean sslHandshakeFailed = false;
 
     
     public WSClientWrapper(String[] uris) {
@@ -105,6 +107,38 @@ public class WSClientWrapper {
     	
     }
     
+    public boolean initializeNewSocketWithFallback(String uriPrefix, String username) {
+    	// First try with the original URI (might be wss://)
+    	if (initializeNewSocket(uriPrefix, username)) {
+    		return true;
+    	}
+    	
+    	// If SSL handshake failed and this is a WSS URL, retry with WS
+    	if (sslHandshakeFailed && uriPrefix.startsWith("wss://")) {
+    		System.out.println("SSL connection failed, retrying with ws:// (insecure)");
+    		String insecureUri = uriPrefix.replace("wss://", "ws://");
+    		sslHandshakeFailed = false; // Reset flag for the retry
+    		if (initializeNewSocket(insecureUri, username)) {
+    			EventBus.getDefault().post(new OnModChatMessage(
+    				"§eWarning: Connected using insecure WebSocket (ws://) due to SSL issues.\n" +
+    				"§ePlease update your Java version for secure connections."
+    			));
+    			return true;
+    		}
+    	}
+    	
+    	// If all attempts failed, show appropriate error message
+    	if (sslHandshakeFailed) {
+    		EventBus.getDefault().post(new OnModChatMessage(
+    			"§cSSL connection failed. This is likely due to an outdated Java version.\n" +
+    			"§cPlease update your Java to the latest version (Java 8u141 or newer is recommended).\n" +
+    			"§cYou can also try using a different Minecraft launcher that bundles a newer Java runtime."
+    		));
+    	}
+    	
+    	return false;
+    }
+    
     private synchronized boolean start() {
     	if(!isRunning) {
     		try {
@@ -119,6 +153,15 @@ public class WSClientWrapper {
 			} catch (WebSocketException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				// Track SSL handshake failures
+				Throwable cause = e.getCause();
+				while (cause != null) {
+					if (cause instanceof SSLHandshakeException) {
+						sslHandshakeFailed = true;
+						break;
+					}
+					cause = cause.getCause();
+				}
 			} catch (NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

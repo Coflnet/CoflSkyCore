@@ -173,7 +173,7 @@ public class CoflSkyCommand {
             EventBus.getDefault().post(new OnModChatMessage("Stopping connection!"));
             CoflCore.Wrapper.stop();
             EventBus.getDefault().post(new OnModChatMessage("Opening connection to " + destination));
-            if (CoflCore.Wrapper.initializeNewSocket(destination, username)) {
+            if (CoflCore.Wrapper.initializeNewSocketWithFallback(destination, username)) {
                 EventBus.getDefault().post(new OnModChatMessage("Success"));
             } else {
                 EventBus.getDefault().post(new OnModChatMessage("Could not open connection, please check the logs"));
