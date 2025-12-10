@@ -106,9 +106,9 @@ public class EventRegistry {
      * It will batch messages that match the regex defined in the configuration.
      * Returns whether the message should be blocked based on chatBlockRegex.
      */
-    public static boolean onChatMessage(String message) {
+    public static void onChatMessage(String message) {
         if (CoflCore.Wrapper == null || !CoflCore.Wrapper.isRunning || !Configuration.getInstance().collectChat)
-            return false;
+            return;
         
         final String msg;
         if (message.contains("§")) {
@@ -150,7 +150,5 @@ public class EventRegistry {
                 e.printStackTrace();
             }
         });
-        
-        return false; // Message was not blocked
     }
 }
