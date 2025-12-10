@@ -25,6 +25,39 @@ public class EventRegistry {
     public static String LastViewAuctionUUID = null;
     public static Pattern chatpattern = Pattern.compile("a^", Pattern.CASE_INSENSITIVE);
     public static Pattern chatBlockPattern = Pattern.compile("a^", Pattern.CASE_INSENSITIVE);
+
+    /**
+     * Checks if a message should be blocked based on `Configuration.getInstance().chatBlockRegex`.
+     * This is a standalone helper so other code can query the block decision without invoking
+     * the batching pipeline.
+     */
+    public static boolean shouldBlockChatMessage(String message) {
+        if (message == null)
+            return false;
+
+        String msg = message;
+        if (msg.contains("§")) {
+            msg = msg.replaceAll("§.", "");
+        }
+
+        String chatBlockRegex = Configuration.getInstance().chatBlockRegex;
+        if (chatBlockRegex == null || chatBlockRegex.isEmpty())
+            return false;
+
+        try {
+            if (chatBlockPattern.pattern().compareTo(chatBlockRegex) != 0) {
+                chatBlockPattern = Pattern.compile(chatBlockRegex, Pattern.CASE_INSENSITIVE);
+            }
+            if (chatBlockPattern.matcher(msg).find()) {
+                System.out.println("Blocking chat message: " + msg);
+                return true;
+            }
+        } catch (Exception e) {
+            System.err.println("Error compiling chatBlockRegex: " + e.getMessage());
+        }
+
+        return false;
+    }
     private static LinkedBlockingQueue<String> chatBatch = new LinkedBlockingQueue<String>();
     private static LocalDateTime lastBatchStart = LocalDateTime.now();
 
@@ -82,22 +115,6 @@ public class EventRegistry {
             msg = message.replaceAll("§.", "");
         } else {
             msg = message;
-        }
-        
-        // Check if message matches chatBlockRegex - if it does, block it
-        String chatBlockRegex = Configuration.getInstance().chatBlockRegex;
-        if (chatBlockRegex != null && !chatBlockRegex.isEmpty()) {
-            try {
-                if (chatBlockPattern.pattern().compareTo(chatBlockRegex) != 0){
-                    chatBlockPattern = Pattern.compile(chatBlockRegex, Pattern.CASE_INSENSITIVE);
-                }
-                if (chatBlockPattern.matcher(msg).find()) {
-                    System.out.println("Blocking chat message: " + msg);
-                    return true; // Block this message
-                }
-            } catch (Exception e) {
-                System.err.println("Error compiling chatBlockRegex: " + e.getMessage());
-            }
         }
         
         chatThreadPool.submit(() -> {
