@@ -22,6 +22,7 @@ public class Configuration {
 	}
 
 	public String chatRegex;
+	public String chatBlockRegex;
 	public boolean collectChat;
 	public boolean collectInventory;
 	public boolean collectTab;

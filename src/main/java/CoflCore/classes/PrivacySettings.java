@@ -9,6 +9,8 @@ public class PrivacySettings {
 
     @SerializedName("chatRegex")
     private String ChatRegex;
+    @SerializedName("chatBlockRegex")
+    private String ChatBlockRegex;
 
     @SerializedName("collectChat")
     private Boolean CollectChat;
@@ -24,6 +26,10 @@ public class PrivacySettings {
 
     public String getChatRegex() {
         return ChatRegex;
+    }
+
+    public String getChatBlockRegex() {
+        return ChatBlockRegex;
     }
 
     public Boolean getCollectChat() {
