@@ -297,9 +297,6 @@ public class NetworkUtils {
                 
                 // Apply the parameters back to the socket
                 socket.setSSLParameters(params);
-                
-                System.out.println("[NetworkUtils] SNI enabled for host: " + hostname + 
-                    ", protocols: " + enabledProtocols.size() + ", ciphers: " + enabledCiphers.size());
             } catch (Exception e) {
                 System.err.println("[NetworkUtils] Failed to enable SNI for " + hostname + ": " + e.getMessage());
             }
