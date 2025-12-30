@@ -114,10 +114,14 @@ public class LocalConfig {
             put("task", "Lists tasks that can be done for profit\nTasks are calculated based on your current progress\nand try to self adjust based on how many items\nyou managed to collect recently (active tasks)\nPassive tasks include flips from other commands");
             put("lowball", "Offer items to or register as lowballer\nSimplifies lowballing by not requiring\nyou to advertise anymore as a buyer.\nAnd allows you to compare multiple offers\nand be visited by the highest as a seller");
             put("bzmove", "Lists the top bazaar movers in the last 24 hours\nSorts by biggest price increase by default\nYou can use /cofl bzmove asc to sort by biggest drop\nYou can also search for items by name or id\nUse /cofl bzmove help to see usage");
-            put("minion", "no help yet");
+            put("minion", "List most profitable minions");
             put("fusionflip", "Lists flips that can be made with fusionmachine\nAssumes you have top buy order, fuse it and\nthen have top sell order to sell the shard");
-            put("search", "no help yet");
+            put("search", "Search all your chests and inventories for an item");
             put("ahflips", "Shows not yet sold auction house flips\nFlips might still be unavailable due\nto update lag, just try the next one\nThis command eases the compatitive \nnature of ah flipping");
+            put("autotip", "Configure automatically tipping");
+            put("mayorflips", "Get mayor cycle based flips (short term investments)");
+            put("api", "Configure thrid party api access");
+            put("ahflips", "List available auction house flips");
         }});
     }
 
