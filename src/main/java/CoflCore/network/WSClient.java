@@ -238,16 +238,37 @@ public class WSClient extends WebSocketAdapter {
 				return;
 			}
 			
-			// Use Desktop API for secure browser handling
+			// Try Desktop API first for secure browser handling
+			boolean opened = false;
 			if (Desktop.isDesktopSupported()) {
 				Desktop desktop = Desktop.getDesktop();
 				if (desktop.isSupported(Desktop.Action.BROWSE)) {
-					desktop.browse(new URI(url));
-				} else {
-					System.err.println("Cannot open URL: BROWSE action is not supported on this platform.");
+					try {
+						desktop.browse(new URI(url));
+						opened = true;
+					} catch (Exception e) {
+						System.err.println("Desktop.browse() failed: " + e.getMessage());
+					}
 				}
-			} else {
-				System.err.println("Cannot open URL: Desktop API is not supported on this platform.");
+			}
+			
+			// Fallback to platform-specific commands if Desktop API failed or not supported
+			if (!opened) {
+				String os = System.getProperty("os.name").toLowerCase();
+				ProcessBuilder pb;
+				
+				if (os.contains("win")) {
+					pb = new ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", url);
+				} else if (os.contains("mac")) {
+					pb = new ProcessBuilder("open", url);
+				} else if (os.contains("nix") || os.contains("nux")) {
+					pb = new ProcessBuilder("xdg-open", url);
+				} else {
+					System.err.println("Cannot open URL: unsupported operating system.");
+					return;
+				}
+				
+				pb.start();
 			}
 		} catch (Exception e) {
 			System.err.println("Error opening URL: " + e.getMessage());
