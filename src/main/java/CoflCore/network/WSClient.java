@@ -16,8 +16,10 @@ import com.google.gson.reflect.TypeToken;
 import com.neovisionaries.ws.client.*;
 import org.greenrobot.eventbus.EventBus;
 
+import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -221,21 +223,41 @@ public class WSClient extends WebSocketAdapter {
 
 	public static void openUrl(String url) {
 		try {
-			String os = System.getProperty("os.name").toLowerCase();
-			Runtime rt = Runtime.getRuntime();
-
-			if (os.contains("win")) {
-				rt.exec("rundll32 url.dll,FileProtocolHandler " + url);
-			} else if (os.contains("mac")) {
-				rt.exec("open " + url);
-			} else if (os.contains("nix") || os.contains("nux")) {
-				rt.exec("xdg-open " + url);
+			// Validate URL format and domain
+			URL parsedUrl = new URL(url);
+			String host = parsedUrl.getHost();
+			
+			if (host == null) {
+				System.err.println("Cannot open URL: invalid URL format - " + url);
+				return;
+			}
+			
+			// Require domain to be *.coflnet.com
+			if (!isValidCoflnetDomain(host)) {
+				System.err.println("Cannot open URL: domain must be *.coflnet.com - " + host);
+				return;
+			}
+			
+			// Use Desktop API for secure browser handling
+			if (Desktop.isDesktopSupported()) {
+				Desktop desktop = Desktop.getDesktop();
+				if (desktop.isSupported(Desktop.Action.BROWSE)) {
+					desktop.browse(new URI(url));
+				} else {
+					System.err.println("Cannot open URL: BROWSE action is not supported on this platform.");
+				}
 			} else {
-				System.err.println("Cannot open URL: unsupported operating system.");
+				System.err.println("Cannot open URL: Desktop API is not supported on this platform.");
 			}
 		} catch (Exception e) {
+			System.err.println("Error opening URL: " + e.getMessage());
 			e.printStackTrace();
 		}
+	}
+	
+	private static boolean isValidCoflnetDomain(String host) {
+		// Accept coflnet.com or any subdomain of coflnet.com
+		return host.equals("coflnet.com") || host.endsWith(".coflnet.com");
 	}
 
 	public void SendCommand(Command cmd) {
