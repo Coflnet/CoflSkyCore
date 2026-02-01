@@ -122,7 +122,7 @@ public class NetworkUtils {
             }
         }
         
-        connection.setRequestProperty("User-Agent", "SkyCoflMod/1.8.4");
+        connection.setRequestProperty("User-Agent", "SkyCoflMod/1.8.5");
         connection.setConnectTimeout(10000);
         connection.setReadTimeout(10000);
         
