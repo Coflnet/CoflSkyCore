@@ -205,6 +205,11 @@ public class WSClient extends WebSocketAdapter {
                 EventBus.getDefault().post(new OnSettingsReceive(settings));
                 System.out.println("Updated settings: " + settings.size());
                 break;
+            case LoggedIn:
+                LoggedInData loggedInData = gson.fromJson(body.getData(), LoggedInData.class);
+                EventBus.getDefault().post(new OnLoggedIn(loggedInData.uuid, loggedInData.verified));
+                System.out.println("Logged in: " + loggedInData.uuid + " verified=" + loggedInData.verified);
+                break;
 			default:
 				break;
 		}

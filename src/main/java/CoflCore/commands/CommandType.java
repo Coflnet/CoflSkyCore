@@ -71,7 +71,9 @@ public enum CommandType {
     @SerializedName("commandUpdate")
     CommandUpdate,
     @SerializedName("settings")
-    Settings;
+    Settings,
+    @SerializedName("loggedIn")
+    LoggedIn;
 
 	public static Map<CommandType,String> data;
 	static {
