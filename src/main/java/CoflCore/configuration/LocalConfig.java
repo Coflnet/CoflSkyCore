@@ -121,7 +121,9 @@ public class LocalConfig {
             put("autotip", "Configure automatically tipping");
             put("mayorflips", "Get mayor cycle based flips (short term investments)");
             put("api", "Configure thrid party api access");
-            put("ahflips", "List available auction house flips");
+            put("bits", "Best item to convert your bits for coins");
+            put("npc", "Shows the best NPC flips");
+            put("keybind", "Binds a command/feature to a hotkey");
         }});
     }
 
@@ -216,6 +218,8 @@ public class LocalConfig {
         this.knownSettings.add(new Settings("loreLowballLbinUndercut", "LowballLbinUndercut", (byte)10, "Mow many percent to undercut the lbin price when lowballing, for items below 10m this is increased by 2% for items above 100m this is decreased by 2%, under 1 volume will also increase this by another 3%", "Byte", "lore"));
         this.knownSettings.add(new Settings("lorePreferLbinInSuggestions", "PreferLbinInSuggestions", true, "Prefer current lbin for suggestions over stable median", "Boolean", "lore"));
         this.knownSettings.add(new Settings("loreSuggestQuicksell", "SuggestQuicksell", false, "Suggest quicksell prices on listing", "Boolean", "lore"));
+        this.knownSettings.add(new Settings("loreNoCookie", "nocookie", false, "Use extra gui clicks for item opening", "Boolean", "lore"));
+        this.knownSettings.add(new Settings("loreBuyOrderPrices", "BuyOrderPrices", false, "Use bazaar buy order prices in (craftcost) calculations", "Boolean", "lore"));
     }
 
     public void updateSettings(ArrayList<Settings> newSettings) {
