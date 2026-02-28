@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 public class Countdown {
 
     @SerializedName("seconds")
-    private Integer Duration;
+    private Double Duration;
 
     @SerializedName("widthPercent")
     private Integer WidthPercentage;
@@ -14,7 +14,7 @@ public class Countdown {
     private Integer HeightPercentage;
 
     @SerializedName("scale")
-    private Integer Scale;
+    private Double Scale;
 
     @SerializedName("prefix")
     private String Prefix;
@@ -22,7 +22,7 @@ public class Countdown {
     @SerializedName("maxPrecision")
     private Integer MaxPrecision;
 
-    public Integer getDuration() {
+    public Double getDuration() {
         return Duration;
     }
 
@@ -34,7 +34,7 @@ public class Countdown {
         return HeightPercentage;
     }
 
-    public Integer getScale() {
+    public Double getScale() {
         return Scale;
     }
 
@@ -50,7 +50,7 @@ public class Countdown {
 
     }
 
-    public Countdown(Integer duration, Integer widthPercentage, Integer heightPercentage, Integer scale, String prefix, Integer maxPrecision) {
+    public Countdown(Double duration, Integer widthPercentage, Integer heightPercentage, Double scale, String prefix, Integer maxPrecision) {
         super();
         this.Duration = duration;
         this.WidthPercentage = widthPercentage;

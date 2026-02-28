@@ -7,7 +7,7 @@ public class Sound {
         return SoundName;
     }
 
-    public Integer getSoundPitch() {
+    public Float getSoundPitch() {
         return SoundPitch;
     }
 
@@ -15,13 +15,13 @@ public class Sound {
     private String SoundName;
 
     @SerializedName("pitch")
-    private Integer SoundPitch;
+    private Float SoundPitch;
 
     public Sound() {
 
     }
 
-    public Sound(String soundName, Integer pitch) {
+    public Sound(String soundName, Float pitch) {
         super();
         this.SoundName = soundName;
         this.SoundPitch = pitch;
