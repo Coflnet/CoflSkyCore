@@ -124,6 +124,8 @@ public class LocalConfig {
             put("bits", "Best item to convert your bits for coins");
             put("npc", "Shows the best NPC flips");
             put("keybind", "Binds a command/feature to a hotkey");
+            put("copper", "Best coins to copper conversion rates");
+            put("loadfliphistory", "Recaluclates flips of a given player in flip-tracking\nShould be ran after bugfixes to correct calculations.");
         }});
     }
 
