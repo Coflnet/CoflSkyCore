@@ -14,6 +14,7 @@ import CoflCore.events.OnOpenAuctionGUI;
 import CoflCore.misc.SessionManager;
 import CoflCore.network.QueryServerCommands;
 import CoflCore.network.WSClient;
+import CoflCore.network.WSClientWrapper;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
@@ -80,9 +81,9 @@ public class CoflSkyCommand {
     }
 
     public static void start(String username){
-        CoflCore.Wrapper.stop();
+        CoflCore.getWrapper().stop();
         EventBus.getDefault().post(new OnModChatMessage("Starting connection..."));
-        CoflCore.Wrapper.startConnection(username);
+        CoflCore.getWrapper().startConnection(username);
     }
 
     public static void sendCommandToServer(String[] args, String username){
@@ -90,17 +91,18 @@ public class CoflSkyCommand {
 
         //JsonStringCommand sc = new JsonStringCommand(args[0], WSClient.gson.toJson(command));
         RawCommand rc = new RawCommand(args[0], WSClient.gson.toJson(command));
-        if (CoflCore.Wrapper.isRunning) {
-            CoflCore.Wrapper.SendMessage(rc);
+        WSClientWrapper wrapper = CoflCore.getWrapper();
+        if (wrapper.isRunning) {
+            wrapper.SendMessage(rc);
         } else {
             EventBus.getDefault().post(new OnModChatMessage("§cCoflSky wasn't active."));
-            CoflCore.Wrapper.startConnection(username);
-            CoflCore.Wrapper.SendMessage(rc);
+            wrapper.startConnection(username);
+            wrapper.SendMessage(rc);
         }
     }
 
     public static void stop(){
-        CoflCore.Wrapper.stop();
+        CoflCore.getWrapper().stop();
         EventBus.getDefault().post(new OnModChatMessage("you stopped the connection to §1C§6oflnet§r.\n    To reconnect enter §b\"§r/cofl start§b\"§r or click this message\n"));
     }
 
@@ -111,7 +113,7 @@ public class CoflSkyCommand {
         //new Thread(()->{
         System.out.println("Callback: " + command);
         WSClient.HandleCommand(new JsonStringCommand(CommandType.Execute, WSClient.gson.toJson(command)));
-        CoflCore.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, WSClient.gson.toJson(command)));
+        CoflCore.getWrapper().SendMessage(new JsonStringCommand(CommandType.Clicked, WSClient.gson.toJson(command)));
 
         System.out.println("Sent!");
         //}).start();
@@ -119,10 +121,10 @@ public class CoflSkyCommand {
 
     public static void dev(String username){
         if (Config.BaseUrl.contains("localhost")) {
-            CoflCore.Wrapper.startConnection(username);
+            CoflCore.getWrapper().startConnection(username);
             Config.BaseUrl = "https://sky.coflnet.com";
         } else {
-            CoflCore.Wrapper.initializeNewSocket("ws://localhost:8009/modsocket", username);
+            CoflCore.getWrapper().initializeNewSocket("ws://localhost:8009/modsocket", username);
             Config.BaseUrl = "http://localhost:5005";
         }
         EventBus.getDefault().post(new OnModChatMessage("toggled dev mode, now using " + Config.BaseUrl));
@@ -153,12 +155,13 @@ public class CoflSkyCommand {
     }
 
     public static void reset(String username) {
-        CoflCore.Wrapper.SendMessage(new Command(CommandType.Reset, ""));
-        CoflCore.Wrapper.stop();
+        WSClientWrapper wrapper = CoflCore.getWrapper();
+        wrapper.SendMessage(new Command(CommandType.Reset, ""));
+        wrapper.stop();
         EventBus.getDefault().post(new OnModChatMessage("Stopping Connection to Coflnet"));
         SessionManager.DeleteAllCoflSessions();
         EventBus.getDefault().post(new OnModChatMessage("Deleting Coflnet sessions..."));
-        if (CoflCore.Wrapper.startConnection(username)) {
+        if (wrapper.startConnection(username)) {
             EventBus.getDefault().post(new OnModChatMessage("Started the Connection to Coflnet"));
         }
     }
@@ -171,9 +174,9 @@ public class CoflSkyCommand {
                 destination = new String(Base64.getDecoder().decode(destination));
             }
             EventBus.getDefault().post(new OnModChatMessage("Stopping connection!"));
-            CoflCore.Wrapper.stop();
+            CoflCore.getWrapper().stop();
             EventBus.getDefault().post(new OnModChatMessage("Opening connection to " + destination));
-            if (CoflCore.Wrapper.initializeNewSocketWithFallback(destination, username)) {
+            if (CoflCore.getWrapper().initializeNewSocketWithFallback(destination, username)) {
                 EventBus.getDefault().post(new OnModChatMessage("Success"));
             } else {
                 EventBus.getDefault().post(new OnModChatMessage("Could not open connection, please check the logs"));

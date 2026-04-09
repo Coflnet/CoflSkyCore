@@ -41,6 +41,24 @@ public class CoflCore {
     };
     public static WSClientWrapper Wrapper = new WSClientWrapper(webSocketURIPrefix);
 
+    /**
+     * Returns the Wrapper instance, re-creating it if it was unexpectedly nulled.
+     */
+    public static WSClientWrapper getWrapper() {
+        WSClientWrapper w = Wrapper;
+        if (w == null) {
+            synchronized (CoflCore.class) {
+                w = Wrapper;
+                if (w == null) {
+                    System.err.println("[CoflCore] Wrapper was null, re-creating");
+                    w = new WSClientWrapper(webSocketURIPrefix);
+                    Wrapper = w;
+                }
+            }
+        }
+        return w;
+    }
+
     public static String CommandUri = Config.BaseUrl + "/api/mod/commands";
     private final static APIKeyManager apiKeyManager = new APIKeyManager();
 

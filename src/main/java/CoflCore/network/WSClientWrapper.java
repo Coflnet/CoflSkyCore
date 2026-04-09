@@ -25,28 +25,42 @@ public class WSClientWrapper {
     private boolean sslHandshakeFailed = false;
 
     
+    private volatile boolean wantToStop = false;
+    
     public WSClientWrapper(String[] uris) {
     	this.uris = uris;
     	this.connectionId = UUID.randomUUID().toString();
     }
     
     public void restartWebsocketConnection() {
+    	if(socket == null)
+    		return;
+    	URI lastUri = socket.uri;
     	socket.stop();
     	
-    	System.out.println("Lost connection to Coflnet, trying to reestablish the connection in 2 Seconds...");
+    	System.out.println("Lost connection to Coflnet, trying to reestablish...");
 
-    	socket = new WSClient(socket.uri);
-    	isRunning = false;   
-		while(isRunning == false) {
-    		start();
-			try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+    	// Run retry in a separate thread so it doesn't block the WebSocket event thread forever
+    	new Thread(() -> {
+	    	socket = new WSClient(lastUri);
+	    	isRunning = false;
+	    	
+			// Retry indefinitely until successful or explicitly stopped via stop()
+			while(!isRunning && !wantToStop) {
+	    		start();
+	    		if (isRunning || wantToStop) break;
+	    		
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					return;
+				}
 			}
-		}
-		socket.shouldRun = true;
+			if(socket != null && !wantToStop) {
+				socket.shouldRun = true;
+			}
+    	}, "CoflSky-Reconnect").start();
     }
     
     
@@ -54,6 +68,7 @@ public class WSClientWrapper {
     	if(isRunning)
     		return false;
     	
+    	wantToStop = false;
     	// Generate new connection ID for user-initiated start
     	this.connectionId = UUID.randomUUID().toString();
     	
@@ -172,12 +187,13 @@ public class WSClientWrapper {
     }
     
     public synchronized void stop() {
-    	if(isRunning) {
+        wantToStop = true;
+    	if(socket != null) {
     		socket.shouldRun = false;
     		socket.stop();
-    		isRunning = false;
-    		socket = null;
     	}
+    	isRunning = false;
+    	socket = null;
     }
     
     public synchronized void SendMessage(RawCommand cmd){

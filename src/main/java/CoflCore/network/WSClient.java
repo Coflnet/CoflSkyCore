@@ -101,7 +101,12 @@ public class WSClient extends WebSocketAdapter {
 		currentState = newState;
 		
 		if(newState == WebSocketState.CLOSED && shouldRun) {
-			CoflCore.Wrapper.restartWebsocketConnection();
+			WSClientWrapper wrapper = CoflCore.Wrapper;
+			if(wrapper != null) {
+				wrapper.restartWebsocketConnection();
+			} else {
+				System.err.println("Cannot restart websocket: Wrapper is null");
+			}
 		}
 		
 		super.onStateChanged(websocket, newState);
@@ -218,7 +223,6 @@ public class WSClient extends WebSocketAdapter {
 	@Override
 	public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) {
 		EventBus.getDefault().post(new SocketClose());
-		CoflCore.Wrapper = null;
 	}
 
 	@Override

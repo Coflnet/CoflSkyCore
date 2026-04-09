@@ -7,6 +7,7 @@ import CoflCore.commands.JsonStringCommand;
 import CoflCore.commands.models.FlipData;
 import CoflCore.CoflSkyCommand;
 import CoflCore.configuration.Configuration;
+import CoflCore.network.WSClientWrapper;
 import com.google.gson.Gson;
 
 import java.time.LocalDateTime;
@@ -62,9 +63,10 @@ public class EventRegistry {
     private static LocalDateTime lastBatchStart = LocalDateTime.now();
 
     public static void onDisconnectedFromServer(){
-        if (CoflCore.Wrapper.isRunning) {
+        WSClientWrapper wrapper = CoflCore.Wrapper;
+        if (wrapper != null && wrapper.isRunning) {
             System.out.println("Disconnected from server");
-            CoflCore.Wrapper.stop();
+            wrapper.stop();
             System.out.println("CoflSky stopped");
         }
     }
@@ -89,7 +91,7 @@ public class EventRegistry {
                 LastClick = System.currentTimeMillis();
                 String command = new Gson().toJson("/viewauction " + f.Id);
 
-                CoflCore.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
+                CoflCore.getWrapper().SendMessage(new JsonStringCommand(CommandType.Clicked, command));
                 CoflSkyCommand.processCommand(new String[]{"track", "besthotkey", f.Id, username}, username);
             } else {
                 // only display message once (if this is the key down event)
@@ -107,7 +109,8 @@ public class EventRegistry {
      * Returns whether the message should be blocked based on chatBlockRegex.
      */
     public static void onChatMessage(String message) {
-        if (CoflCore.Wrapper == null || !CoflCore.Wrapper.isRunning || !Configuration.getInstance().collectChat)
+        WSClientWrapper wrapper = CoflCore.Wrapper;
+        if (wrapper == null || !wrapper.isRunning || !Configuration.getInstance().collectChat)
             return;
         
         final String msg;
@@ -142,7 +145,7 @@ public class EventRegistry {
                         System.out.println("Sending batch of " + chatBatch.size() + " messages");
                         Command<String[]> data = new Command<>(CommandType.chatBatch, chatBatch.toArray(new String[0]));
                         chatBatch.clear();
-                        CoflCore.Wrapper.SendMessage(data);
+                        CoflCore.getWrapper().SendMessage(data);
                     }
                 }, 500);
 
