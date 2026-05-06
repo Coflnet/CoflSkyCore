@@ -4,6 +4,8 @@ plugins {
     `maven-publish`
 }
 
+import org.gradle.api.tasks.compile.JavaCompile
+
 group = "com.conutik.coflCore"
 version = "0.1.01"
 
@@ -34,6 +36,12 @@ dependencies {
 
 java {
     withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(25)
 }
 
 tasks.jar {

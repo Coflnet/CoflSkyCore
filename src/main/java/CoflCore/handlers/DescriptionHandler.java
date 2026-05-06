@@ -28,6 +28,7 @@ public class DescriptionHandler {
         body.addProperty("chestName", chestName);
         body.addProperty("version", 3);
         body.addProperty("fullInventoryNbt", fullInventoryNBT);
+        if (Config.ServerContext != null && !Config.ServerContext.isBlank()) body.addProperty("server", Config.ServerContext);
         if (position != null) body.add("position", WSClient.gson.toJsonTree(position, Position.class));
 
         String info = QueryServerCommands.PostRequest(Config.BaseUrl + "/api/mod/description/modifications", body.toString(), username);

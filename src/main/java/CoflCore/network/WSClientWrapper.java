@@ -3,6 +3,7 @@ package CoflCore.network;
 import CoflCore.CoflCore;
 import CoflCore.commands.Command;
 import CoflCore.commands.RawCommand;
+import CoflCore.configuration.Config;
 import CoflCore.events.OnModChatMessage;
 import CoflCore.misc.SessionManager;
 import com.neovisionaries.ws.client.WebSocketException;
@@ -104,6 +105,9 @@ public class WSClientWrapper {
 			
 			uri += "&SId=" + coflSessionID;
 			uri += "&cid=" + this.connectionId;	
+			if (Config.ServerContext != null && !Config.ServerContext.isBlank()) {
+				uri += "&server=" + Config.ServerContext;
+			}
 
 			if(socket != null)
 				socket.stop();
