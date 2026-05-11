@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class WSClientWrapper {
@@ -27,6 +28,8 @@ public class WSClientWrapper {
 
     
     private volatile boolean wantToStop = false;
+		private final AtomicBoolean reconnectInProgress = new AtomicBoolean(false);
+		private volatile Thread reconnectThread;
     
     public WSClientWrapper(String[] uris) {
     	this.uris = uris;
@@ -36,38 +39,55 @@ public class WSClientWrapper {
     public void restartWebsocketConnection() {
     	if(socket == null)
     		return;
+	    if (wantToStop) {
+	    	return;
+	    }
+	    if (!reconnectInProgress.compareAndSet(false, true)) {
+	    	System.out.println("Reconnect already in progress, ignoring duplicate request.");
+	    	return;
+	    }
     	URI lastUri = socket.uri;
     	socket.stop();
     	
     	System.out.println("Lost connection to Coflnet, trying to reestablish...");
 
     	// Run retry in a separate thread so it doesn't block the WebSocket event thread forever
-    	new Thread(() -> {
-	    	socket = new WSClient(lastUri);
-	    	isRunning = false;
-	    	
-			// Retry indefinitely until successful or explicitly stopped via stop()
-			while(!isRunning && !wantToStop) {
-	    		start();
-	    		if (isRunning || wantToStop) break;
+	    Thread thread = new Thread(() -> {
+	    	try {
+	    		socket = new WSClient(lastUri);
+	    		isRunning = false;
 	    		
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					return;
+				// Retry indefinitely until successful or explicitly stopped via stop()
+				while(!isRunning && !wantToStop) {
+	    			start();
+	    			if (isRunning || wantToStop) break;
+	    			
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+						return;
+					}
 				}
-			}
-			if(socket != null && !wantToStop) {
-				socket.shouldRun = true;
-			}
-    	}, "CoflSky-Reconnect").start();
+				if(socket != null && !wantToStop && isRunning) {
+					socket.shouldRun = true;
+				}
+	    	} finally {
+	    		reconnectThread = null;
+	    		reconnectInProgress.set(false);
+	    	}
+	    }, "CoflSky-Reconnect");
+	    thread.setDaemon(true);
+	    reconnectThread = thread;
+	    thread.start();
     }
     
     
     public boolean startConnection(String username) {
     	if(isRunning)
     		return false;
+	    if (reconnectInProgress.get())
+	    	return false;
     	
     	wantToStop = false;
     	// Generate new connection ID for user-initiated start
@@ -192,6 +212,12 @@ public class WSClientWrapper {
     
     public synchronized void stop() {
         wantToStop = true;
+	    Thread currentReconnectThread = reconnectThread;
+	    reconnectThread = null;
+	    reconnectInProgress.set(false);
+	    if (currentReconnectThread != null) {
+	    	currentReconnectThread.interrupt();
+	    }
     	if(socket != null) {
     		socket.shouldRun = false;
     		socket.stop();

@@ -23,8 +23,11 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class WSClient extends WebSocketAdapter {
+    private static final int CONNECT_TIMEOUT_MS = 10 * 1000;
+    private static final long PING_INTERVAL_MS = 15 * 1000L;
 
 	public static Gson gson;	
 	
@@ -79,8 +82,11 @@ public class WSClient extends WebSocketAdapter {
 			System.out.println("[WSClient] Using plain WebSocket connection (no SSL) to: " + host);
 		}
 		
-		factory.setConnectionTimeout(10*1000);
+		factory.setConnectionTimeout(CONNECT_TIMEOUT_MS);
 		this.socket = factory.createSocket(uri);
+		this.socket.setPingInterval(PING_INTERVAL_MS);
+		this.socket.setPingSenderName("CoflSky-Ping");
+		this.socket.setMissingCloseFrameAllowed(true);
 		this.socket.addListener(this);
 		this.socket.connect();
 	}
@@ -110,6 +116,12 @@ public class WSClient extends WebSocketAdapter {
 		}
 		
 		super.onStateChanged(websocket, newState);
+	}
+
+	@Override
+	public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
+		System.out.println("[WSClient] Connected to " + uri + " with ping interval " + PING_INTERVAL_MS + "ms");
+		super.onConnected(websocket, headers);
 	}
 
 	 @Override
@@ -222,6 +234,10 @@ public class WSClient extends WebSocketAdapter {
 
 	@Override
 	public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) {
+		System.out.println("[WSClient] Disconnected from " + uri
+				+ " closedByServer=" + closedByServer
+				+ " serverClose=" + describeCloseFrame(serverCloseFrame)
+				+ " clientClose=" + describeCloseFrame(clientCloseFrame));
 		EventBus.getDefault().post(new SocketClose());
 	}
 
@@ -309,6 +325,13 @@ public class WSClient extends WebSocketAdapter {
 		 		System.out.println("Ran into an error on implicit start for send: "+ e);
 			}
 		this.socket.sendText(json);
+	}
+
+	private static String describeCloseFrame(WebSocketFrame closeFrame) {
+		if (closeFrame == null) {
+			return "none";
+		}
+		return closeFrame.getCloseCode() + "(" + closeFrame.getCloseReason() + ")";
 	}
 	
 }
