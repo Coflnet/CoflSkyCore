@@ -262,37 +262,40 @@ public class WSClient extends WebSocketAdapter {
 				System.err.println("Cannot open URL: domain must be *.coflnet.com - " + host);
 				return;
 			}
-			
-			// Try Desktop API first for secure browser handling
+
+			String safeUrl = parsedUrl.toExternalForm();
+
+			if (EventBus.getDefault().hasSubscriberForEvent(OnOpenUrlReceive.class)) {
+				EventBus.getDefault().post(new OnOpenUrlReceive(safeUrl));
+				return;
+			}
+
+			// Try Desktop API first for secure browser handling.
 			boolean opened = false;
 			if (Desktop.isDesktopSupported()) {
 				Desktop desktop = Desktop.getDesktop();
 				if (desktop.isSupported(Desktop.Action.BROWSE)) {
 					try {
-						desktop.browse(new URI(url));
+						desktop.browse(new URI(safeUrl));
 						opened = true;
 					} catch (Exception e) {
 						System.err.println("Desktop.browse() failed: " + e.getMessage());
 					}
 				}
 			}
-			
-			// Fallback to platform-specific commands if Desktop API failed or not supported
+
 			if (!opened) {
 				String os = System.getProperty("os.name").toLowerCase();
 				ProcessBuilder pb;
-				
-				if (os.contains("win")) {
-					pb = new ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", url);
-				} else if (os.contains("mac")) {
-					pb = new ProcessBuilder("open", url);
+				if (os.contains("mac")) {
+					pb = new ProcessBuilder("open", safeUrl);
 				} else if (os.contains("nix") || os.contains("nux")) {
-					pb = new ProcessBuilder("xdg-open", url);
+					pb = new ProcessBuilder("xdg-open", safeUrl);
 				} else {
 					System.err.println("Cannot open URL: unsupported operating system.");
 					return;
 				}
-				
+
 				pb.start();
 			}
 		} catch (Exception e) {
