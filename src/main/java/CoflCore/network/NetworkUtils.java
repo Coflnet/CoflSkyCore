@@ -1,24 +1,29 @@
 package CoflCore.network;
 
-import javax.net.ssl.*;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
-import java.security.cert.X509Certificate;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIServerName;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * Utility for HTTPS connections with proper SSL/TLS certificate validation.
@@ -122,7 +127,7 @@ public class NetworkUtils {
             }
         }
         
-        connection.setRequestProperty("User-Agent", "SkyCoflMod/1.9.0");
+        connection.setRequestProperty("User-Agent", "SkyCoflMod/1.9.3");
         connection.setConnectTimeout(10000);
         connection.setReadTimeout(10000);
         

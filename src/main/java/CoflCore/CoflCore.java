@@ -12,17 +12,19 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import org.greenrobot.eventbus.EventBus;
+
+import com.google.gson.Gson;
+
 import CoflCore.configuration.Config;
 import CoflCore.configuration.LocalConfig;
 import CoflCore.misc.SessionManager;
 import CoflCore.network.WSClientWrapper;
 import CoflCore.proxy.APIKeyManager;
-import com.google.gson.Gson;
-import org.greenrobot.eventbus.EventBus;
 
 public class CoflCore {
     public static final String MODID = "CoflSky";
-    public static final String VERSION = "1.9.0";
+    public static final String VERSION = "1.9.3";
 
     public static FlipHandler flipHandler = new FlipHandler();
 
