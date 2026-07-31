@@ -128,9 +128,14 @@ public class NetworkUtils {
         }
         
         connection.setRequestProperty("User-Agent", "SkyCoflMod/1.9.3");
+        // Reuse the underlying socket across requests. The JVM only pools a connection when the
+        // response body (or error stream) is fully read and disconnect() is NOT called, so callers
+        // must drain the stream on both success and failure - see QueryServerCommands.PostRequest.
+        // This avoids a fresh TCP+TLS handshake on every description fetch (one per menu open).
+        connection.setRequestProperty("Connection", "keep-alive");
         connection.setConnectTimeout(10000);
         connection.setReadTimeout(10000);
-        
+
         return connection;
     }
     

@@ -121,14 +121,18 @@ public class QueryServerCommands {
 			os.close();
 			int responseCode = con.getResponseCode();
 			if (responseCode < 200 || responseCode >= 400) {
+				// Drain the error stream so the socket goes back to the keep-alive pool instead of
+				// being torn down (an undrained stream forces the next request to reconnect).
+				drainAndClose(con.getErrorStream());
 				throw new IOException("HTTP error code: " + responseCode);
 			}
 
-			InputStream in = new BufferedInputStream(con.getInputStream());
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
-			byte[] buffer = new byte[1024];
-			for (int length; (length = in.read(buffer)) != -1; ) {
-				result.write(buffer, 0, length);
+			try (InputStream in = new BufferedInputStream(con.getInputStream())) {
+				byte[] buffer = new byte[1024];
+				for (int length; (length = in.read(buffer)) != -1; ) {
+					result.write(buffer, 0, length);
+				}
 			}
 			String resString =  result.toString("UTF-8");
 			return resString;
@@ -140,5 +144,19 @@ public class QueryServerCommands {
 		}
 
 		return null;
+	}
+
+	// Reads an error stream to EOF and closes it so its socket can be reused (keep-alive). Never
+	// throws - reconnecting on the next request is the harmless fallback if draining fails.
+	private static void drainAndClose(InputStream stream) {
+		if (stream == null)
+			return;
+		try (InputStream in = stream) {
+			byte[] buffer = new byte[1024];
+			while (in.read(buffer) != -1) {
+				// discard
+			}
+		} catch (IOException ignored) {
+		}
 	}
 }
