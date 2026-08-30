@@ -319,14 +319,10 @@ public class WSClient extends WebSocketAdapter {
 	public void Send(Object obj) {
 		String json = gson.toJson(obj);
 		System.out.println("###Sending message of json value " + json);
-		if(this.socket == null)
-			try 
-			{
-				start();
-			} catch(Exception e)
-			{
-		 		System.out.println("Ran into an error on implicit start for send: "+ e);
-			}
+		if(this.socket == null) {
+			System.err.println("Dropping message, socket is not connected: " + json);
+			return;
+		}
 		this.socket.sendText(json);
 	}
 

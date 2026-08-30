@@ -18,15 +18,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class WSClientWrapper {
-    public WSClient socket;
+    public volatile WSClient socket;
    // public Thread thread;
-    public boolean isRunning;
-    
+    public volatile boolean isRunning;
+
+    // Guards ONLY the connection lifecycle (start/stop/socket replacement).
+    // SendMessage() must never acquire this - it must never wait on an in-progress
+    // (blocking, up to 10s) connect attempt.
+    final Object connectionLock = new Object();
+
     private String[] uris;
     private String connectionId;
     private boolean sslHandshakeFailed = false;
 
-    
+
     private volatile boolean wantToStop = false;
 		private final AtomicBoolean reconnectInProgress = new AtomicBoolean(false);
 		private volatile Thread reconnectThread;
@@ -178,63 +183,69 @@ public class WSClientWrapper {
     	return false;
     }
     
-    private synchronized boolean start() {
-    	if(!isRunning) {
-    		try {
-    			
-				socket.start();
-				isRunning = true;
+    boolean start() {
+    	synchronized (connectionLock) {
+	    	if(!isRunning) {
+	    		try {
 
-				return true;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (WebSocketException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				// Track SSL handshake failures
-				Throwable cause = e.getCause();
-				while (cause != null) {
-					if (cause instanceof SSLHandshakeException) {
-						sslHandshakeFailed = true;
-						break;
+					socket.start();
+					isRunning = true;
+
+					return true;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (WebSocketException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					// Track SSL handshake failures
+					Throwable cause = e.getCause();
+					while (cause != null) {
+						if (cause instanceof SSLHandshakeException) {
+							sslHandshakeFailed = true;
+							break;
+						}
+						cause = cause.getCause();
 					}
-					cause = cause.getCause();
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    		return false;
+	    		return false;
+	    	}
+			return false;
     	}
-		return false;
     }
-    
-    public synchronized void stop() {
-        wantToStop = true;
-	    Thread currentReconnectThread = reconnectThread;
-	    reconnectThread = null;
-	    reconnectInProgress.set(false);
-	    if (currentReconnectThread != null) {
-	    	currentReconnectThread.interrupt();
-	    }
-    	if(socket != null) {
-    		socket.shouldRun = false;
-    		socket.stop();
+
+    public void stop() {
+    	synchronized (connectionLock) {
+	        wantToStop = true;
+		    Thread currentReconnectThread = reconnectThread;
+		    reconnectThread = null;
+		    reconnectInProgress.set(false);
+		    if (currentReconnectThread != null) {
+		    	currentReconnectThread.interrupt();
+		    }
+	    	if(socket != null) {
+	    		socket.shouldRun = false;
+	    		socket.stop();
+	    	}
+	    	isRunning = false;
+	    	socket = null;
     	}
-    	isRunning = false;
-    	socket = null;
     }
-    
-    public synchronized void SendMessage(RawCommand cmd){
-		if (this.isRunning) {
-    		this.socket.SendCommand(cmd);
+
+    public void SendMessage(RawCommand cmd){
+		WSClient currentSocket = this.socket;
+		if (this.isRunning && currentSocket != null) {
+    		currentSocket.SendCommand(cmd);
 		}
     }
 
-    public synchronized void SendMessage(Command cmd){
-    	if(this.isRunning) {
-    		this.socket.SendCommand(cmd);
+    public void SendMessage(Command cmd){
+    	WSClient currentSocket = this.socket;
+    	if(this.isRunning && currentSocket != null) {
+    		currentSocket.SendCommand(cmd);
     	} else {
 			System.err.println("Tried sending a callback to coflnet but failed. The connection must be closed. cmd: " + cmd.getType());
 		}
