@@ -15,6 +15,8 @@ public enum CommandType {
 	Ping,
 	@SerializedName("execute")
 	Execute,
+	@SerializedName("infoDisplay")
+	InfoDisplay,
 
 	@SerializedName("tokenLogin")
 	TokenLogin,
