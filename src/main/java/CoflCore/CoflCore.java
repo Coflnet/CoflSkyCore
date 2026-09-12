@@ -24,7 +24,7 @@ import CoflCore.proxy.APIKeyManager;
 
 public class CoflCore {
     public static final String MODID = "CoflSky";
-    public static final String VERSION = "1.9.3";
+    public static final String VERSION = "2.0.0-pre1";
 
     public static FlipHandler flipHandler = new FlipHandler();
 

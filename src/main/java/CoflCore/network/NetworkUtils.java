@@ -127,7 +127,7 @@ public class NetworkUtils {
             }
         }
         
-        connection.setRequestProperty("User-Agent", "SkyCoflMod/1.9.3");
+        connection.setRequestProperty("User-Agent", "SkyCoflMod/" + CoflCore.CoflCore.VERSION);
         // Reuse the underlying socket across requests. The JVM only pools a connection when the
         // response body (or error stream) is fully read and disconnect() is NOT called, so callers
         // must drain the stream on both success and failure - see QueryServerCommands.PostRequest.
