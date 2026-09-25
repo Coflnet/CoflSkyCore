@@ -38,8 +38,6 @@ public class CoflCore {
     public static final String[] webSocketURIPrefix = new String[]{
             "wss://sky.coflnet.com/modsocket",
             "wss://sky-mod.coflnet.com/modsocket", // not cloudflare
-            // fallback for old java versions not supporting new tls certificates
-            "ws://sky-mod.coflnet.com/modsocket",
     };
     public static WSClientWrapper Wrapper = new WSClientWrapper(webSocketURIPrefix);
 

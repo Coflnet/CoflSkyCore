@@ -152,23 +152,8 @@ public class WSClientWrapper {
     }
     
     public boolean initializeNewSocketWithFallback(String uriPrefix, String username) {
-    	// First try with the original URI (might be wss://)
     	if (initializeNewSocket(uriPrefix, username)) {
     		return true;
-    	}
-    	
-    	// If SSL handshake failed and this is a WSS URL, retry with WS
-    	if (sslHandshakeFailed && uriPrefix.startsWith("wss://")) {
-    		System.out.println("SSL connection failed, retrying with ws:// (insecure)");
-    		String insecureUri = uriPrefix.replace("wss://", "ws://");
-    		sslHandshakeFailed = false; // Reset flag for the retry
-    		if (initializeNewSocket(insecureUri, username)) {
-    			EventBus.getDefault().post(new OnModChatMessage(
-    				"§eWarning: Connected using insecure WebSocket (ws://) due to SSL issues.\n" +
-    				"§ePlease update your Java version for secure connections."
-    			));
-    			return true;
-    		}
     	}
     	
     	// If all attempts failed, show appropriate error message
