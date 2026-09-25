@@ -1,8 +1,5 @@
 package CoflCore.configuration;
 
-import CoflCore.classes.Settings;
-import com.google.gson.Gson;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -10,6 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import com.google.gson.Gson;
+
+import CoflCore.classes.Settings;
 
 public class LocalConfig {
     public boolean autoStart;
@@ -47,7 +48,11 @@ public class LocalConfig {
             }
         }
         
-        if (!this.knownCommands.isEmpty()) {
+        boolean hadCommands = !this.knownCommands.isEmpty();
+        this.knownCommands.putIfAbsent("agreementterms", "Review and accept the current SkyCofl agreement\nUsage: /cofl terms");
+        this.knownCommands.putIfAbsent("settings", "Information about mod settings\nUsage: /cofl settings");
+        this.knownCommands.putIfAbsent("emblem", "Show and equip emblems you unlocked\nUsage: /cofl emblem [set <id>|clear]");
+        if (hadCommands) {
             return;
         }
         this.knownCommands.putAll(new HashMap<String, String>() {{
@@ -125,7 +130,6 @@ public class LocalConfig {
             put("npc", "Shows the best NPC flips");
             put("keybind", "Binds a command/feature to a hotkey");
             put("copper", "Best coins to copper conversion rates");
-            put("loadfliphistory", "Recaluclates flips of a given player in flip-tracking\nShould be ran after bugfixes to correct calculations.");
         }});
     }
 
