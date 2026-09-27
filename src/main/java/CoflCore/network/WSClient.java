@@ -214,6 +214,9 @@ public class WSClient extends WebSocketAdapter {
 				}
 				System.out.println("Updated commands: " + CoflCore.config.knownCommands.size());
                 break;
+            case TradeGui:
+                EventBus.getDefault().post(new OnTradeGui(TradeGuiSettings.parseEnabled(body.getData())));
+                break;
             case Settings:
                 // Parse the JSON string from the data field
                 String settingsJsonString = body.getData();

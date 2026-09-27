@@ -48,7 +48,11 @@ public class LocalConfig {
             }
         }
         
+        this.knownCommands.remove("vps");
+        this.knownCommands.remove("loadfliphistory");
         boolean hadCommands = !this.knownCommands.isEmpty();
+        this.knownCommands.putIfAbsent("rustaddon", "Information about the Rust addon");
+        this.knownCommands.putIfAbsent("proxy", "Information about the proxy connection");
         this.knownCommands.putIfAbsent("agreementterms", "Review and accept the current SkyCofl agreement\nUsage: /cofl terms");
         this.knownCommands.putIfAbsent("settings", "Information about mod settings\nUsage: /cofl settings");
         this.knownCommands.putIfAbsent("emblem", "Show and equip emblems you unlocked\nUsage: /cofl emblem [set <id>|clear]");

@@ -74,6 +74,8 @@ public enum CommandType {
     CommandUpdate,
     @SerializedName("settings")
     Settings,
+    @SerializedName("tradeGui")
+    TradeGui,
     @SerializedName("loggedIn")
     LoggedIn;
 
