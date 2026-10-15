@@ -32,7 +32,7 @@ public class CoflSkyCommand {
             + "§bsetgui: §7Changes the auction purchase GUI\nServer-Only Commands:";
 
     public static void processCommand(String[] args, String username) {
-        new Thread(() -> {
+        Thread.ofPlatform().daemon().name("CoflSky-Command").start(() -> {
             System.out.println(Arrays.toString(args));
 
             if (args.length >= 1) {
@@ -77,7 +77,7 @@ public class CoflSkyCommand {
                 EventBus.getDefault().post(new OnModChatMessage(HelpText));
                 EventBus.getDefault().post(new OnModChatMessage(QueryServerCommands.QueryCommands()));
             }
-        }).start();
+        });
     }
 
     public static void start(String username){

@@ -22,6 +22,21 @@ import static org.junit.Assert.assertTrue;
  */
 public class WSClientWrapperTest {
 
+    @Test
+    public void disconnectStopsAWrapperEvenWhileItIsReconnecting() {
+        var previous = CoflCore.CoflCore.Wrapper;
+        var stopped = new AtomicInteger();
+        var wrapper = new WSClientWrapper(new String[0]) {
+            @Override public void stop() { stopped.incrementAndGet(); super.stop(); }
+        };
+        CoflCore.CoflCore.Wrapper = wrapper;
+        try {
+            assertFalse(wrapper.isRunning);
+            CoflCore.handlers.EventRegistry.onDisconnectedFromServer();
+            assertEquals(1, stopped.get());
+        } finally { CoflCore.CoflCore.Wrapper = previous; }
+    }
+
     /**
      * A fake WSClient that never touches the network - SendCommand just records the call.
      */

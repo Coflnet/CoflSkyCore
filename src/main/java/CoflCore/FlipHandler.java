@@ -18,7 +18,7 @@ public class FlipHandler {
         private FlipData HighestFlip = null;
         private FlipData LastFlip = null;
 
-        private Timer t = new Timer();
+        private final Timer t = new Timer("CoflSky-FlipHousekeeping", true);
         private TimerTask CurrentTask = null;
 
         public synchronized void RunHouseKeeping() {

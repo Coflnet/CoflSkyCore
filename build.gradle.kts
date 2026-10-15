@@ -58,3 +58,7 @@ publishing {
         }
     }
 }
+
+tasks.test {
+    systemProperty("coflcore.test.classpath", sourceSets.test.get().runtimeClasspath.asPath)
+}

@@ -10,17 +10,24 @@ import CoflCore.configuration.Configuration;
 import CoflCore.network.WSClientWrapper;
 import com.google.gson.Gson;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EventRegistry {
     public static long LastClick = System.currentTimeMillis();
-    public static final ExecutorService chatThreadPool = Executors.newFixedThreadPool(2);
-    public static final ExecutorService tickThreadPool = Executors.newFixedThreadPool(2);
+    public static final ExecutorService chatThreadPool = Executors.newFixedThreadPool(2,
+            Thread.ofPlatform().daemon().name("CoflSky-Chat-", 0).factory());
+    public static final ExecutorService tickThreadPool = Executors.newFixedThreadPool(2,
+            Thread.ofPlatform().daemon().name("CoflSky-Tick-", 0).factory());
+
+    private static final ScheduledExecutorService chatBatchScheduler = Executors.newSingleThreadScheduledExecutor(
+            Thread.ofPlatform().daemon().name("CoflSky-ChatBatch").factory());
 
     public static long LastViewAuctionInvocation = Long.MIN_VALUE;
     public static String LastViewAuctionUUID = null;
@@ -60,11 +67,11 @@ public class EventRegistry {
         return false;
     }
     private static LinkedBlockingQueue<String> chatBatch = new LinkedBlockingQueue<String>();
-    private static LocalDateTime lastBatchStart = LocalDateTime.now();
+    private static boolean batchScheduled;
 
     public static void onDisconnectedFromServer(){
         WSClientWrapper wrapper = CoflCore.Wrapper;
-        if (wrapper != null && wrapper.isRunning) {
+        if (wrapper != null) {
             System.out.println("Disconnected from server");
             wrapper.stop();
             System.out.println("CoflSky stopped");
@@ -130,24 +137,25 @@ public class EventRegistry {
                 if (!matchFound)
                     return;
 
-                chatBatch.add(msg);
-                // add 500ms to the last batch start time
-                long nanoSeconds = 500_000_000;
-                if (!lastBatchStart.plusNanos(nanoSeconds).isBefore(LocalDateTime.now())) {
-                    System.out.println(msg + " was not sent because it was too soon");
-                    return;
+                synchronized (chatBatch) {
+                    chatBatch.add(msg);
+                    if (batchScheduled) return;
+                    batchScheduled = true;
                 }
-                lastBatchStart = LocalDateTime.now();
 
-                new java.util.Timer().schedule(new java.util.TimerTask() {
-                    @Override
-                    public void run() {
-                        System.out.println("Sending batch of " + chatBatch.size() + " messages");
-                        Command<String[]> data = new Command<>(CommandType.chatBatch, chatBatch.toArray(new String[0]));
-                        chatBatch.clear();
-                        CoflCore.getWrapper().SendMessage(data);
+                chatBatchScheduler.schedule(() -> {
+                    try {
+                        var batch = new ArrayList<String>();
+                        synchronized (chatBatch) {
+                            chatBatch.drainTo(batch);
+                            batchScheduled = false;
+                        }
+                        System.out.println("Sending batch of " + batch.size() + " messages");
+                        CoflCore.getWrapper().SendMessage(new Command<>(CommandType.chatBatch, batch.toArray(new String[0])));
+                    } catch (RuntimeException e) {
+                        e.printStackTrace();
                     }
-                }, 500);
+                }, 500, TimeUnit.MILLISECONDS);
 
             } catch (Exception e) {
                 e.printStackTrace();

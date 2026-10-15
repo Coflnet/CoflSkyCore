@@ -8,7 +8,7 @@ public class FlipperChatCommand {
     public static boolean useChatOnlyMode = false;
 
     public void processCommand(String[] args, String username) {
-        new Thread(() -> {
+        Thread.ofPlatform().daemon().name("CoflSky-FlipperChat").start(() -> {
             if (args.length == 1 && args[0].equals("toggle")) {
                 FlipperChatCommand.useChatOnlyMode = !FlipperChatCommand.useChatOnlyMode;
                 EventBus.getDefault().post(new OnModChatMessage("[§1C§6oflnet§f]§7: §7Set §bChat only mode §7to: §f" + (FlipperChatCommand.useChatOnlyMode ? "true" : "false")));
@@ -18,6 +18,6 @@ public class FlipperChatCommand {
                 newArgs[0] = "chat";
                 CoflSkyCommand.sendCommandToServer(newArgs, username);
             }
-        }).start();
+        });
     }
 }
