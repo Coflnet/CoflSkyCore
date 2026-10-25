@@ -55,6 +55,7 @@ public class LocalConfig {
         this.knownCommands.putIfAbsent("proxy", "Proxy feature removed from the mod");
         this.knownCommands.putIfAbsent("agreementterms", "Review and accept the current SkyCofl agreement\nUsage: /cofl terms");
         this.knownCommands.putIfAbsent("settings", "Information about mod settings\nUsage: /cofl settings");
+        this.knownCommands.putIfAbsent("shareitem", "Share one of your items with another player\nUsage: /cofl shareitem <player>\nThey get it as a DM in the cofl chat");
         this.knownCommands.putIfAbsent("emblem", "Show and equip emblems you unlocked\nUsage: /cofl emblem [set <id>|clear]");
         if (hadCommands) {
             return;

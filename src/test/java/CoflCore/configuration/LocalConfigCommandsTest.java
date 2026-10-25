@@ -17,7 +17,7 @@ public class LocalConfigCommandsTest {
         LocalConfig config = new LocalConfig(true, true, null, saved, null);
 
         assertEquals("Saved description", config.knownCommands.get("report"));
-        for (String command : new String[]{"rustaddon", "agreementterms", "settings", "proxy", "emblem"})
+        for (String command : new String[]{"rustaddon", "agreementterms", "settings", "proxy", "emblem", "shareitem"})
             assertTrue(command, config.knownCommands.containsKey(command));
         assertFalse(config.knownCommands.containsKey("vps"));
         assertFalse(config.knownCommands.containsKey("loadfliphistory"));
